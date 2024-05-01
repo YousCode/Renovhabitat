@@ -5,6 +5,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import { HiPlus } from "react-icons/hi";
 import NewSaleModal from "../../components/modal/NewSaleModal";
 import venteData from "./Renovhanbitat.vente.json";
+import frLocale from '@fullcalendar/core/locales/fr';
 
 function parseFrenchDate(dateStr) {
   let [datePart, timePart] = dateStr.split(' ');
@@ -72,11 +73,13 @@ export const WeeklyCalendar = () => {
       <FullCalendar
         plugins={[dayGridPlugin, interactionPlugin]}
         // initialView="dayGridDay"
-initialView="dayGridMonth"
+        initialView="dayGridMonth"
 
         hiddenDays={[0]} // Hide Sunday
         dateClick={handleDateClick}
         events={events}
+        locale={frLocale} // Set locale to French
+        eventClassNames="bg-[#2B1C56] text-white p-2 rounded-md"
       />
       {modalOpen && (
         <NewSaleModal onClose={handleModalClose} onAdd={handleAddSale} />

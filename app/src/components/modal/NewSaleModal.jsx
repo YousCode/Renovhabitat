@@ -51,7 +51,6 @@
 //             <input className="bg-slate-950" type="text" name="TELEPHONE" value={newSale["TELEPHONE"]} onChange={handleChange} />
 //           </div>
 
-        
 //           <div className="mb-4">
 //             <label>VENDEUR:</label>
 //             <input className="bg-slate-950" type="text" name="VENDEUR" value={newSale["VENDEUR"]} onChange={handleChange} />
@@ -79,36 +78,35 @@
 
 // export default NewSaleModal;
 
-
 import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 
 const NewSaleModal = ({ onClose, onAdd }) => {
   const [newSale, setNewSale] = useState({
-        "DATE DE VENTE": "",
-        "CIVILITE": "",
-        "NOM DU CLIENT": "",
-        "prenom": "",
-        "NUMERO BC": "",
-        "ADRESSE DU CLIENT": "",
-        "VILLE": "",
-        "CP": "",
-        "TELEPHONE": "",
-        "VENDEUR": "",
-        "DESIGNATION": "",
-        "TAUX TVA": "",
-        "COMISSION SOLO": "",
-        "MONTANT TTC ": "",
-        "MONTANT HT": "",
-        "MONTANT ANNULE": "",
-        "ETAT": ""
-      });
+    "DATE DE VENTE": "",
+    CIVILITE: "",
+    "NOM DU CLIENT": "",
+    prenom: "",
+    "NUMERO BC": "",
+    "ADRESSE DU CLIENT": "",
+    VILLE: "",
+    CP: "",
+    TELEPHONE: "",
+    VENDEUR: "",
+    DESIGNATION: "",
+    "TAUX TVA": "",
+    "COMISSION SOLO": "",
+    "MONTANT TTC ": "",
+    "MONTANT HT": "",
+    "MONTANT ANNULE": "",
+    ETAT: "",
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNewSale((prevSale) => ({
       ...prevSale,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -117,23 +115,23 @@ const NewSaleModal = ({ onClose, onAdd }) => {
 
     // Assuming `newSale` is already up to date with all input changes handled by `handleChange`
     const formData = {
-        "DATE DE VENTE": newSale["DATE DE VENTE"],
-        "CIVILITE": newSale["CIVILITE"],
-        "NOM DU CLIENT": newSale["NOM DU CLIENT"],
-        "prenom": newSale["prenom"],
-        "NUMERO BC": newSale["NUMERO BC"],
-        "ADRESSE DU CLIENT": newSale["ADRESSE DU CLIENT"],
-        "VILLE": newSale["VILLE"],
-        "CP": newSale["CP"],
-        "TELEPHONE": newSale["TELEPHONE"],
-        "VENDEUR": newSale["VENDEUR"],
-        "DESIGNATION": newSale["DESIGNATION"],
-        "TAUX TVA": newSale["TAUX TVA"],
-        "COMISSION SOLO": newSale["COMISSION SOLO"],
-        "MONTANT TTC ": newSale["MONTANT TTC "],
-        "MONTANT HT": newSale["MONTANT HT"],
-        "MONTANT ANNULE": newSale["MONTANT ANNULE"],
-        "ETAT": newSale["ETAT"]
+      "DATE DE VENTE": newSale["DATE DE VENTE"],
+      CIVILITE: newSale["CIVILITE"],
+      "NOM DU CLIENT": newSale["NOM DU CLIENT"],
+      prenom: newSale["prenom"],
+      "NUMERO BC": newSale["NUMERO BC"],
+      "ADRESSE DU CLIENT": newSale["ADRESSE DU CLIENT"],
+      VILLE: newSale["VILLE"],
+      CP: newSale["CP"],
+      TELEPHONE: newSale["TELEPHONE"],
+      VENDEUR: newSale["VENDEUR"],
+      DESIGNATION: newSale["DESIGNATION"],
+      "TAUX TVA": newSale["TAUX TVA"],
+      "COMISSION SOLO": newSale["COMISSION SOLO"],
+      "MONTANT TTC ": newSale["MONTANT TTC "],
+      "MONTANT HT": newSale["MONTANT HT"],
+      "MONTANT ANNULE": newSale["MONTANT ANNULE"],
+      ETAT: newSale["ETAT"],
     };
 
     // Call the onAdd function passed from the parent component with the new sale data
@@ -141,9 +139,9 @@ const NewSaleModal = ({ onClose, onAdd }) => {
 
     // Close the modal
     onClose();
-};
-// initialView="dayGridDay"
-// initialView="dayGridMonth"
+  };
+  // initialView="dayGridDay"
+  // initialView="dayGridMonth"
 
   return (
     <Transition.Root show={true} as={Fragment}>
@@ -193,7 +191,9 @@ const NewSaleModal = ({ onClose, onAdd }) => {
                 </svg>
               </button>
 
-              <h2 className="text-2xl font-bold mb-4">Ajouter une nouvelle vente</h2>
+              <h2 className="text-2xl font-bold mb-4">
+                Ajouter une nouvelle vente
+              </h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <label className="block">
                   Date de vente:
@@ -241,16 +241,22 @@ const NewSaleModal = ({ onClose, onAdd }) => {
 
                 <label className="block">
                   Vendeur:
-                  <input
-                    type="text"
+                  <select
                     name="VENDEUR"
                     value={newSale["VENDEUR"]}
                     onChange={handleChange}
                     className="block w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:border-blue-500"
-                  />
+                  >
+                    <option value="">Select un vendeur</option>{" "}
+                    {/* Optional: add a default "empty" option */}
+                    <option value="Payet">Payet</option>
+                    <option value="Rivet">Rivet</option>
+                    <option value="Deberre">Deberre</option>
+                    <option value="Masson">Masson</option>
+                  </select>
                 </label>
 
-                <label className="block">
+                <lable className="block">
                   Désignation:
                   <input
                     type="text"
@@ -259,7 +265,7 @@ const NewSaleModal = ({ onClose, onAdd }) => {
                     onChange={handleChange}
                     className="block w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:border-blue-500"
                   />
-                </label>
+                </lable>
 
                 <button
                   type="submit"
