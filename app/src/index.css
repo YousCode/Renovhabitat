@@ -1,0 +1,157 @@
+@import url("https://fonts.cdnfonts.com/css/proxima-nova");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: "Proxima Nova", sans-serif;
+    @apply bg-app-background;
+  }
+
+  input[type="date"] {
+    position: relative;
+    border: none;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    background: transparent;
+    bottom: 0;
+    color: transparent;
+    cursor: pointer;
+    height: auto;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: auto;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* fullcalendar css */
+
+  .tasks-calendar .fc-toolbar-chunk:first-child,
+  .monthly-calendar .fc-toolbar-chunk:first-child {
+    @apply flex items-center bg-app-accent rounded-md text-xs py-2 px-2 w-full lg:w-auto justify-between lg:justify-start;
+  }
+
+  .tasks-calendar #fc-dom-1,
+  .monthly-calendar #fc-dom-1 {
+    /* @apply capitalize text-sm font-bold mr-2; */
+    text-transform: capitalize;
+    font-size: 0.875rem;
+    font-weight: bold;
+    margin-right: 0.5rem;
+  }
+
+  .tasks-calendar .fc-toolbar-chunk:first-child .fc-button,
+  .monthly-calendar .fc-toolbar-chunk:first-child .fc-button {
+    @apply m-0 p-0 bg-transparent border-0;
+  }
+
+  .tasks-calendar .fc .fc-daygrid-body-unbalanced .fc-daygrid-day-events {
+    min-height: auto;
+    height: auto;
+    margin-bottom: 0;
+    margin-top: 1.2rem;
+  }
+  .tasks-calendar .fc .fc-daygrid-body-natural .fc-daygrid-day-events {
+    margin-bottom: 0;
+  }
+
+  .tasks-calendar .fc .fc-daygrid-day-number,
+  .tasks-calendar .fc .fc-daygrid-day {
+    z-index: auto;
+    position: static;
+    width: 100%;
+  }
+  .tasks-calendar .fc-daygrid-day-frame {
+    display: flex;
+    flex-direction: column;
+  }
+  .tasks-calendar .fc .fc-daygrid-day.fc-day-today {
+    background: none;
+    border: 1px solid white;
+  }
+  .tasks-calendar .fc .fc-daygrid-day-top {
+    width: 100%;
+  }
+
+  .tasks-calendar .fc-theme-standard td,
+  .tasks-calendar .fc-theme-standard th,
+  .tasks-calendar .fc-theme-standard .fc-scrollgrid {
+    border: none;
+  }
+
+  .monthly-calendar .fc-theme-standard th {
+    @apply !border-0;
+  }
+
+  .fc .fc-scroller-harness {
+    padding: 1px !important;
+  }
+
+  .monthly-calendar .fc-theme-standard td,
+  .monthly-calendar .fc-theme-standard .fc-scrollgrid {
+    @apply !border-app-card-bg;
+  }
+
+  .monthly-calendar tbody {
+    @apply divide-y divide-app-card-bg;
+  }
+
+  .monthly-calendar .fc-daygrid-day-top {
+    @apply items-center justify-center text-sm font-semibold;
+  }
+
+  .monthly-calendar .fc-day-today {
+    @apply !bg-transparent;
+  }
+}
+
+@layer components {
+  .text-gradient {
+    background: linear-gradient(90deg, #eb725d 0%, #db57ad 100%);
+    background-clip: text;
+    color: transparent;
+  }
+
+  .bg-black-gradient {
+    background: linear-gradient(180deg, #1b1b1b 0%, #000 100%);
+  }
+
+  .bg-image-gradient {
+    background: linear-gradient(
+      360deg,
+      rgba(0, 0, 0, 0.9) 15.05%,
+      rgba(0, 0, 0, 0.3) 64.71%,
+      rgba(255, 255, 255, 0) 100%
+    );
+  }
+
+  .bg-explore-gradient {
+    background: linear-gradient(180deg, rgb(16 11 32 / 40%) -50%, #100b20 100%);
+  }
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #7665a7;
+  border-radius: 5px;
+}
