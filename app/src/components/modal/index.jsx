@@ -38,3 +38,5 @@ export const Modal = ({ isOpen, closeModal, children, className }) => {
     </Transition.Root>
   );
 };
+
+export default Modal;

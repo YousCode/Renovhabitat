@@ -1,184 +1,94 @@
-import { useEffect } from "react";
-import FullCalendar from "@fullcalendar/react"; // must go before plugins
-import dayGridPlugin from "@fullcalendar/daygrid"; // a plugin!
-import interactionPlugin from "@fullcalendar/interaction"; // needed for dayClick
-import { useTranslation } from "react-i18next";
-import { HiPlus } from "react-icons/hi"; // needed for dayClick
+import React, { useState, useEffect } from "react";
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import { HiPlus } from "react-icons/hi";
+import NewSaleModal from "../../components/modal/NewSaleModal";
+import venteData from "./Renovhanbitat.vente.json";
 
-import API from "src/services/api";
-import { useSelector } from "react-redux";
-import { Select } from "./select";
-import { task_category_colors, task_categories } from "src/utils";
+function parseFrenchDate(dateStr) {
+  let [datePart, timePart] = dateStr.split(' ');
+  const [day, month, year] = datePart.split('/');
 
-export const WeeklyCalendar = ({
-  setTaskSelected,
-  setModalOpened,
-  tasks,
-  projects,
-  projectFilterCalendar,
-  setTasks,
-}) => {
-  const { t } = useTranslation();
-  const user = useSelector((state) => state.Auth.user);
+  // Handle two-digit year by assuming 20th or 21st century
+  const fullYear = year.length === 2 ? (parseInt(year, 10) < 50 ? `20${year}` : `19${year}`) : year;
+
+  // Default to midnight if no time part is provided
+  const [hours = '00', minutes = '00', seconds = '00'] = timePart ? timePart.split(':') : [];
+
+  return new Date(fullYear, month - 1, day, hours, minutes, seconds);
+}
+
+
+
+
+export const WeeklyCalendar = () => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [events, setEvents] = useState([]);
 
   useEffect(() => {
-    const dayToday = document.querySelector(".fc-day-today").querySelector(".fc-scrollgrid-sync-inner");
+    const eventList = venteData.map(sale => {
+      try {
+        const date = parseFrenchDate(sale["DATE DE VENTE"]);
+        return {
+          title: `${sale["NOM DU CLIENT"]} - ${sale["DESIGNATION"]}`,
+          start: date,
+          allDay: true,
+        };
+      } catch (error) {
+        console.error("Invalid date found:", sale["DATE DE VENTE"], error);
+        return null;
+      }
+    }).filter(event => event !== null);
 
-    dayToday.style.display = "flex";
-    dayToday.style.alignItems = "center";
-    dayToday.style.justifyContent = "center";
-
-    if (dayToday.querySelector("#dot")) return;
-
-    const dot = document.createElement("div");
-    dot.setAttribute("id", "dot");
-    dot.classList.add("bg-red-500", "w-1.5", "h-1.5", "rounded-full");
-    dayToday.appendChild(dot);
-    // i don't know if this is the best way to do it but it works
-    // because i can't override the css of the toolbar
-    const toolbar = document.querySelector(".fc-toolbar-title");
-    toolbar.style.fontSize = "12px";
-    toolbar.style.marginRight = "9px";
-    toolbar.style.marginTop = "2px";
+    setEvents(eventList);
   }, []);
 
-  return (
-    <div className="py-4 px-2 bg-app rounded-lg flex-1">
-      {/* <div className="flex items-center lg:flex-row flex-col justify-start gap-1.5 mb-1.5 lg:mb-0 lg:ml-[250px] xl:ml-[450px]">
-        <Select prefix={""} value={statusFilterCalendar} list={[t("task.todo"), t("task.closed")]} onChange={setStatusFilterCalendar} />
-        <Select
-          prefix={""}
-          value={projectFilterCalendar.name}
-          list={[
-            { name: t("dashboard.all_projects"), value: "all" },
-            ...projects.map((p) => {
-              return { name: p.name, value: p._id.toString() };
-            }),
-          ]}
-          onChange={setProjectFilterCalendar}
-        />
-        <Select
-          prefix={""}
-          value={assignedToFilterCalendar}
-          list={[
-            { name: t("dashboard.everyone"), value: "all" },
-            ...people.map((p) => {
-              return { name: p.name, value: p._id.toString() };
-            }),
-          ]}
-          onChange={setAssignedToFilterCalendar}
-        />
-      </div> */}
+  const handleDateClick = (arg) => {
+    setModalOpen(true);
+  };
 
-      <div className="tasks-calendar lg:!-mt-[2.3rem]">
-        <FullCalendar
-          plugins={[dayGridPlugin, interactionPlugin]}
-          initialView="dayGridDay"
-          hiddenDays={[0]}
-          dateClick={(e) => {
-            let dayDate = e.date;
-            dayDate.setHours(12);
-            setTaskSelected({ startsAt: dayDate, endsAt: dayDate });
-            setModalOpened(true);
-          }}
-          editable={true}
-          eventDrop={async (e) => {
-            await API.put(`/task/${e.event?._def?.extendedProps?._id}`, {
-              delta: e.delta,
-            });
-            setTasks();
-          }}
-          locale={user?.language}
-          contentHeight="auto"
-          dayHeaderClassNames="bg-app-accent !border !border-r !border-app-light !text-app-light !p-2.5 capitalize font-normal text-xs"
-          dayCellClassNames="!border-none hover:cursor-pointer group"
-          titleFormat={{ year: "numeric", month: "long", day: "2-digit" }}
-          dayHeaderFormat={{ weekday: "long", day: "numeric",month: "long" }}
-          headerToolbar={{
-            left: "prev title next",
-            right: "",
-          }}
-          dayCellContent={(info) => (
-            <DayCell value={info} eventExists={tasks.some((s) => new Date(s.createdAt).getDate() === new Date(info.createdAt).getDate())} />
-          )}
-          eventContent={(info) => (
-            <Event
-              value={info}
-              onChange={(task) => {
-                setTaskSelected(task);
-                setModalOpened(true);
-              }}
-            />
-          )}
-          events={[
-            ...projects
-              .filter((e) => e._id.toString() === projectFilterCalendar.value || projectFilterCalendar.value === "all")
-              .map((s, index) => {
-                s.type = "project";
-                return {
-                  id: "project-" + index,
-                  title: s.name,
-                  start: s.endAt || s.createdAt,
-                  startsAt: s.endAt ? new Date(s.endAt) : null,
-                  end: s.endAt || s.createdAt,
-                  endsAt: s.endAt ? new Date(s.endAt) : null,
-                  extendedProps: s,
-                  color: "rgba(0, 0, 0, 0)",
-                };
-              }),
-            ...tasks.map((s, index) => {
-              s.type = "task";
-              return {
-                id: "task-" + index,
-                title: s.title,
-                start: s.startsAt || s.createdAt,
-                startsAt: s.startsAt ? new Date(s.startsAt) : null,
-                end: s.endsAt || s.startsAt,
-                endsAt: s.endsAt ? new Date(s.endsAt) : new Date(s.startsAt),
-                extendedProps: s,
-                color: "rgba(0, 0, 0, 0)",
-              };
-            }),
-          ]}
+  const handleModalClose = () => {
+    setModalOpen(false);
+  };
+
+  const handleAddSale = (newSale) => {
+    try {
+        const date = parseFrenchDate(newSale["DATE DE VENTE"]);
+        const newEvent = {
+            title: `${newSale["NOM DU CLIENT"]} - ${newSale["DESIGNATION"]}`,
+            start: date,
+            allDay: true
+        };
+        setEvents([...events, newEvent]);
+        setModalOpen(false);
+    } catch (error) {
+        console.error("Error parsing date:", newSale["DATE DE VENTE"], error);
+    }
+};
+
+  return (
+    <div style={{ position: "relative" }}>
+      <FullCalendar
+        plugins={[dayGridPlugin, interactionPlugin]}
+        // initialView="dayGridDay"
+initialView="dayGridMonth"
+
+        hiddenDays={[0]} // Hide Sunday
+        dateClick={handleDateClick}
+        events={events}
+      />
+      {modalOpen && (
+        <NewSaleModal onClose={handleModalClose} onAdd={handleAddSale} />
+      )}
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <HiPlus
+          className="text-4xl cursor-pointer"
+          onClick={handleDateClick}
         />
       </div>
     </div>
   );
 };
 
-const DayCell = ({ value, onClick }) => {
-  return (
-    <div>
-      <div className="relative z-20 font-bold text-ms">{value.dayNumberText}</div>
-      <div
-        onClick={onClick}
-        className="p-1 text-center rounded w-full z-40 cursor-pointer bg-app-button opacity-0  group-hover:opacity-100 absolute top-0 left-0 "
-      >
-        <HiPlus className="text-base mx-auto leading-none text-white" />
-        <span className="text-xs font-bold text-deepspace-100"></span>
-      </div>
-    </div>
-  );
-};
-
-const Event = ({ value, onChange }) => {
-  const title = value.event.title;
-  const event = value.event._def.extendedProps;
-
-  return (
-    <div
-      className={`w-full rounded cursor-pointer px-2.5 py-1.5 ${event.type === "project" ? "bg-app-maroon" : "bg-app-task-bg"}`}
-      onClick={() => onChange(event)}
-    >
-      <div className="flex items-center gap-x-1.5">
-      <div className={`text-xs flex items-center gap-x-1 font-bold whitespace-nowrap ${task_category_colors[event.category]?.text}`}>
-      <div className={`mr-2 w-1.5 h-1.5 rounded-full ${task_category_colors[event.category]?.bg || 'bg-tertiary'}`} />
-          {event.type === "project" ? "Deadline : " : ""}{title}
-        </div>
-
-        {event.type === "task" && <div className="text-xs text-white underline">{event?.projectName || ""}</div>}
-        
-      </div>
-    </div>
-  );
-};
+export default WeeklyCalendar;
