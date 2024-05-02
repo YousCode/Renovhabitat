@@ -30,14 +30,14 @@ export const WeeklyCalendar = () => {
   useEffect(() => {
     const eventList = venteData.map(sale => {
       try {
-        const date = parseFrenchDate(sale["DATE DE VENTE"]);
+        const date = parseFrenchDate(sale["Heure"]);
         return {
           title: `${sale["NOM DU CLIENT"]} - ${sale["DESIGNATION"]}`,
           start: date,
           allDay: true,
         };
       } catch (error) {
-        console.error("Invalid date found:", sale["DATE DE VENTE"], error);
+        console.error("Invalid date found:", sale["Heure"], error);
         return null;
       }
     }).filter(event => event !== null);
@@ -55,7 +55,7 @@ export const WeeklyCalendar = () => {
 
   const handleAddSale = (newSale) => {
     try {
-        const date = parseFrenchDate(newSale["DATE DE VENTE"]);
+        const date = parseFrenchDate(newSale["Heure"]);
         const newEvent = {
             title: `${newSale["NOM DU CLIENT"]} - ${newSale["DESIGNATION"]}`,
             start: date,
@@ -64,7 +64,7 @@ export const WeeklyCalendar = () => {
         setEvents([...events, newEvent]);
         setModalOpen(false);
     } catch (error) {
-        console.error("Error parsing date:", newSale["DATE DE VENTE"], error);
+        console.error("Error parsing date:", newSale["Heure"], error);
     }
 };
 

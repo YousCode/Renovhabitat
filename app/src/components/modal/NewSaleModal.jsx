@@ -2,7 +2,7 @@
 
 // const NewSaleModal = ({ onClose, onAdd }) => {
 //   const [newSale, setNewSale] = useState({
-//     "DATE DE VENTE": "",
+//     "Heure": "",
 //     "CIVILITE": "",
 //     "NOM DU CLIENT": "",
 //     "prenom": "",
@@ -42,8 +42,8 @@
 //         <h2>Ajouter une nouvelle vente</h2>
 //         <form onSubmit={handleSubmit} className="flex  ">
 //           <div className="mb-4">
-//             <label>Date de vente:</label>
-//             <input className="bg-slate-950" type="text" name="DATE DE VENTE" value={newSale["DATE DE VENTE"]} onChange={handleChange} />
+//             <label>Heure:</label>
+//             <input className="bg-slate-950" type="text" name="Heure" value={newSale["Heure"]} onChange={handleChange} />
 //           </div>
 
 //           <div className="mb-4">
@@ -83,23 +83,13 @@ import { Dialog, Transition } from "@headlessui/react";
 
 const NewSaleModal = ({ onClose, onAdd }) => {
   const [newSale, setNewSale] = useState({
-    "DATE DE VENTE": "",
-    CIVILITE: "",
-    "NOM DU CLIENT": "",
-    prenom: "",
-    "NUMERO BC": "",
-    "ADRESSE DU CLIENT": "",
-    VILLE: "",
-    CP: "",
+    "Heure": "",
+    "NOM": "",
     TELEPHONE: "",
+    VILLE: "",
     VENDEUR: "",
-    DESIGNATION: "",
-    "TAUX TVA": "",
-    "COMISSION SOLO": "",
-    "MONTANT TTC ": "",
-    "MONTANT HT": "",
-    "MONTANT ANNULE": "",
-    ETAT: "",
+    CP: "",
+    RESULTAT: "",
   });
 
   const handleChange = (e) => {
@@ -115,23 +105,13 @@ const NewSaleModal = ({ onClose, onAdd }) => {
 
     // Assuming `newSale` is already up to date with all input changes handled by `handleChange`
     const formData = {
-      "DATE DE VENTE": newSale["DATE DE VENTE"],
+      "Heure": newSale["Heure"],
       CIVILITE: newSale["CIVILITE"],
       "NOM DU CLIENT": newSale["NOM DU CLIENT"],
-      prenom: newSale["prenom"],
-      "NUMERO BC": newSale["NUMERO BC"],
-      "ADRESSE DU CLIENT": newSale["ADRESSE DU CLIENT"],
       VILLE: newSale["VILLE"],
-      CP: newSale["CP"],
       TELEPHONE: newSale["TELEPHONE"],
       VENDEUR: newSale["VENDEUR"],
-      DESIGNATION: newSale["DESIGNATION"],
-      "TAUX TVA": newSale["TAUX TVA"],
-      "COMISSION SOLO": newSale["COMISSION SOLO"],
-      "MONTANT TTC ": newSale["MONTANT TTC "],
-      "MONTANT HT": newSale["MONTANT HT"],
-      "MONTANT ANNULE": newSale["MONTANT ANNULE"],
-      ETAT: newSale["ETAT"],
+      RESULTAT: newSale["ETAT"],
     };
 
     // Call the onAdd function passed from the parent component with the new sale data
@@ -196,11 +176,11 @@ const NewSaleModal = ({ onClose, onAdd }) => {
               </h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <label className="block">
-                  Date de vente:
+                  Heure:
                   <input
                     type="text"
-                    name="DATE DE VENTE"
-                    value={newSale["DATE DE VENTE"]}
+                    name="Heure"
+                    value={newSale["Heure"]}
                     onChange={handleChange}
                     className="block w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:border-blue-500"
                   />
