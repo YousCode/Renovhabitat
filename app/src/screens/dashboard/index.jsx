@@ -130,111 +130,6 @@ export const Dashboard = () => {
     <>
       <section className="space-y-6 flex flex-col flex-1">
         
-          {/* <div className="lg:col-span-3 4xl:col-span-2 rounded-2xl overflow-hidden relative">
-          <img 
-            className="object-cover bg-right w-full h-full aspect-video"
-            src={
-              isMorning 
-              ? require("src/assets/morning.gif") 
-              : require("src/assets/evening.gif")
-            } 
-            alt="Morning or Evening visual representation" 
-          />
-            <div className="absolute top-5 left-7">
-              <p className="font-bold text-xs text-white">
-                {new Date().toLocaleDateString(
-                  [user?.language === "fr" ? "fr-FR" : "en-US"],
-                  {
-                    day: "numeric",
-                    month: "long",
-                    weekday: "long",
-                  },
-                )}
-              </p>
-              <h1 className="text-4xl font-bold text-green-500">{t("hello")} !</h1>
-              <p className="text-xs text-white -mt-1">{user.name}.</p>
-            </div>
-
-            <div className="absolute top-2.5 right-2.5 px-2 py-1 rounded bg-black/50 text-white text-sm font-bold">
-              {formattedTime}
-            </div>
-
-            <div className="w-full h-[80%] bg-image-gradient absolute bottom-0" />
-          </div>
-          <div className="lg:col-span-9 4xl:col-[span_16_/_span_16] p-4 space-y-2 overflow-hidden">
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center flex-col lg:flex-row gap-2 w-full lg:w-auto">
-                <p className="font-bold text-green-500">{t("tasks")}</p>
-                <Select
-                  prefix={t("status")}
-                  value={statusFilterList}
-                  list={[t("task.todo"), t("task.closed")]}
-                  onChange={setStatusFilterList}
-                />
-
-                <Select
-                  prefix={t("task.assigned_person")}
-                  value={assignedToFilterList}
-                  list={[t("dashboard.me"), t("dashboard.everyone")]}
-                  onChange={setAssignedToFilterList}
-                />
-              </div>
-              <button
-                onClick={() => {
-                  setTaskSelected({});
-                  setModalOpened(true);
-                }}
-                className="py-2 px-4 rounded-[10px] bg-app-button font-bold text-green-500 flex items-center justify-center gap-x-2 text-sm w-full lg:w-auto"
-              >
-                <PlusIcon />
-                {t("task.new")}
-              </button>
-            </div>
-            {tasksList.length === 0 && (
-              <div className=" w-full h-full flex justify-center items-center flex-col">
-                <div>
-                  <span className=" text-details-secondary text-sm  ">
-                    Vous n’avez pas encore de vente assignée :{" "}
-                  </span>
-                  <span
-                    onClick={() => {
-                      setTaskSelected({});
-                      setModalOpened(true);
-                    }}
-                    className=" text-white  text-sm cursor-pointer ml-1"
-                  >
-                    Créez une Vente
-                  </span>
-                </div>
-                <div>
-                  <span className=" text-details-secondary text-sm ">
-                    Vous êtes tout seul ?{" "}
-                  </span>
-                  <Link
-                    to="/equipe"
-                    className=" text-white text-sm cursor-pointer ml-1 "
-                  >
-                    Invitez d’abord vos collègues
-                  </Link>
-                </div>
-              </div>
-            )}
-            <div className="flex overflow-x-auto mb-4">
-              <div className="flex space-x-2">
-                {/* {tasksList.map((task) => (
-                  // <KanbanCard
-                  //   projects={projects}
-                  //   people={people}
-                  //   task={task}
-                  //   setTasks={setTasks}
-                  //   setTaskSelected={setTaskSelected}
-                  //   key={task._id}
-                  //   setModalOpened={setModalOpened}
-                  // />
-                // ))} */}
-              {/* </div>
-            </div>
-          </div> */}
         <WeeklyCalendar
           setTaskSelected={setTaskSelected}
           setModalOpened={setModalOpened}
@@ -251,14 +146,14 @@ export const Dashboard = () => {
         />
       </section>
 
-      <CreateSheet
+      {/* <CreateSheet
         modalOpened={modalOpened}
         setModalOpened={setModalOpened}
         taskSelected={taskSelected}
         setTaskSelected={setTaskSelected}
         setRefreshTasks={setRefreshTasks}
         setTasks={setTasks}
-      />
+      /> */}
     </>
   );
 };
