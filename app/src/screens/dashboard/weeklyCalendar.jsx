@@ -6,6 +6,7 @@ import { HiPlus } from "react-icons/hi";
 import NewSaleModal from "../../components/modal/NewSaleModal";
 import venteData from "./Renovhanbitat.vente.json";
 import frLocale from '@fullcalendar/core/locales/fr';
+import { useHistory } from "react-router-dom";
 
 function parseFrenchDate(dateStr) {
   let [datePart, timePart] = dateStr.split(' ');
@@ -20,12 +21,10 @@ function parseFrenchDate(dateStr) {
   return new Date(fullYear, month - 1, day, hours, minutes, seconds);
 }
 
-
-
-
 export const WeeklyCalendar = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [events, setEvents] = useState([]);
+  const history = useHistory();
 
   useEffect(() => {
     const eventList = venteData.map(sale => {
@@ -46,7 +45,7 @@ export const WeeklyCalendar = () => {
   }, []);
 
   const handleDateClick = (arg) => {
-    setModalOpen(true);
+    history.push(`/date-details/${arg.dateStr}`);
   };
 
   const handleModalClose = () => {

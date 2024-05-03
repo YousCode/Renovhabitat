@@ -16,6 +16,10 @@ import { setUser } from "./redux/auth/actions";
 import { hjid, hjsv } from "./config";
 import { ProjectPublic } from "./screens/projects/public";
 
+
+import DateDetails from "./components/DateDetails";
+
+
 import { environment, SENTRY_URL } from "./config";
 if (environment === "production" && SENTRY_URL) Sentry.init({ dsn: SENTRY_URL, environment: "app" });
 
@@ -49,6 +53,7 @@ export default function App() {
         <Route path="/auth" component={Auth} />
         <Route path="/connect" component={Connect} />
         <Route path="/public/project" component={ProjectPublic} />
+        <Route path="/date-details/:date" component={DateDetails} />
         <Layout>
           <RestrictedRoute path="/account" component={Account} />
           <RestrictedRoute path="/projects" component={Projects} />
