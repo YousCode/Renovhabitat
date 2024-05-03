@@ -28,6 +28,7 @@ app.use("/workspace", require("./controllers/workspace"));
 app.use("/freelance_request", require("./controllers/freelance_request"));
 app.use("/comment", require("./controllers/comment"));
 app.use("/media", require("./controllers/media"));
+app.use("/ventes", require("./controllers/ventes"));
 
 const d = new Date();
 

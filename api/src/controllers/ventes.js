@@ -68,4 +68,42 @@ router.get("/search", async (req, res) => {
   }
 });
 
+
+router.get("/date", async (req, res) => {
+  try {
+      const { date } = req.query;
+      const ventes = await Vente.find({
+          "DATE DE VENTE": date,
+      });
+      res.status(200).send({ success: true, data: ventes });
+  } catch (error) {
+      res.status(500).send({ success: false, message: error.message });
+  }
+});
+
+
+router.get("/all", async (req, res) => {
+  try {
+      console.log("Fetching all sales");
+      const ventes = await Vente.find();
+      console.log("Found sales:", ventes);
+      res.status(200).send({ success: true, data: ventes });
+  } catch (error) {
+      console.error("Error fetching sales", error);
+      res.status(500).send({ success: false, message: error.message });
+  }
+});
+
+// Récupérer une vente par ID
+router.get("/:id", async (req, res) => {
+  try {
+    const vente = await Vente.findById(req.params.id);
+    if (!vente) {
+      return res.status(404).send({ success: false, message: "Vente non trouvée" });
+    }
+    res.status(200).send({ success: true, data: vente });
+  } catch (error) {
+    res.status(500).send({ success: false, message: error.message });
+  }
+});
 module.exports = router;

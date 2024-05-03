@@ -71,8 +71,8 @@ const DateDetails = () => {
                                     <td className="px-6 py-4 whitespace-nowrap">{sale["TELEPHONE"]}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">{sale["VILLE"]}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">{sale["NUMERO BC"]}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{sale["DESIGNATION"]}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{sale["ETAT"]}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">{sale["DESIGNATION"]}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">{sale["ETAT"]}</td>
                                 </tr>
                             ))}
                             {emptyRows.map((_, index) => (
@@ -82,8 +82,8 @@ const DateDetails = () => {
                                     <td className="px-6 py-4 whitespace-nowrap">-</td>
                                     <td className="px-6 py-4 whitespace-nowrap">-</td>
                                     <td className="px-6 py-4 whitespace-nowrap">-</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">-</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">-</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">-</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">-</td>
                                     {/* <td className="px-6 py-4 whitespace-nowrap">&nbsp;</td> */}
                                 </tr>
                             ))}

@@ -18,6 +18,7 @@ import { ProjectPublic } from "./screens/projects/public";
 
 
 import DateDetails from "./components/DateDetails";
+import SaleDetails from "./components/SaleDetails";
 
 
 import { environment, SENTRY_URL } from "./config";
