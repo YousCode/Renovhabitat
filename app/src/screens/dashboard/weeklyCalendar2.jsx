@@ -158,3 +158,29 @@ const Event = ({ value, onChange }) => {
     </div>
   );
 };
+
+// useEffect(() => {
+//     const applyCustomStyles = () => {
+//         // Query and style day cells
+//         document.querySelectorAll('.fc .fc-daygrid-day').forEach(el => {
+//             el.classList.add('border-black'); // Adds black border to day cells
+//         });
+
+//         // Query and style day numbers
+//         document.querySelectorAll('.fc .fc-daygrid-day-number').forEach(el => {
+//             el.classList.add('text-black'); // Adds black text to day numbers
+//         });
+
+//         // Query and style day tops if necessary
+//         document.querySelectorAll('.fc .fc-day-top').forEach(el => {
+//             el.classList.add('text-black'); // Ensures top of day labels are also black
+//         });
+//     };
+
+//     applyCustomStyles();
+//     const observer = new MutationObserver(applyCustomStyles);
+//     observer.observe(document.querySelector('.fc'), { childList: true, subtree: true });
+
+//     // Cleanup observer on component unmount
+//     return () => observer.disconnect();
+// }, []);

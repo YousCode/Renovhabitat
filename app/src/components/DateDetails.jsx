@@ -6,6 +6,7 @@ const DateDetails = () => {
     const { date } = useParams();
     const [sales, setSales] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const MIN_ROWS = 15;
 
@@ -20,26 +21,40 @@ const DateDetails = () => {
       };
       
 
-    useEffect(() => {
-      const fetchSalesData = async () => {
-          try {
-              const response = await fetch(`/ventes/date?date=${date}`);
-              const data = await response.json();
-              setSales(data.data);  // Assuming the response structure has a 'data' field
-          } catch (error) {
-              console.error("Error fetching sales data:", error);
-          } finally {
-              setLoading(false);
-          }
-      };
-  
-      fetchSalesData();
-    }, [date]);
+   
+
+      useEffect(() => {
+        const fetchSalesData = async () => {
+            if (!date) return;
+    
+            setLoading(true);
+            setError(null);
+            try {
+                // Ensure the date format matches what the backend expects
+                const formattedDate = new Date(date).toISOString().split('T')[0];
+                const response = await fetch(`/ventes/date?date=${formattedDate}`);
+                console.log(response);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch sales: ${response.statusText}`);
+                }
+    
+                const data = await response.json();
+                setSales(data.data);
+            } catch (error) {
+                console.error("Error fetching sales data:", error);
+                setError(`Error loading sales details: ${error.message}`);
+            } finally {
+                setLoading(false);
+            }
+        };
+    
+        fetchSalesData();
+    }, [date]);  // Ensure this effect runs anytime the 'date' parameter changes
+    
 
     const handleAddSale = (newSale) => {
-        // Implementation to add a new sale to the server/database
-        setSales(prev => [...prev, newSale]); // Update local state
-        setIsModalOpen(false); // Close the modal
+        setSales(prev => [...prev, newSale]);
+        setIsModalOpen(false);
     };
 
     const emptyRowsCount = Math.max(0, MIN_ROWS - sales.length);
@@ -110,3 +125,4 @@ const DateDetails = () => {
 };
 
 export default DateDetails;
+// const data = require('../screens/dashboard/Renovhanbitat.vente.json');

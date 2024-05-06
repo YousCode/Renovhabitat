@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const Vente = require("../models/ventes");
+const passport = require('passport');
 
 // Ajouter une nouvelle vente avec validation
 router.post("/", [
@@ -84,18 +85,13 @@ router.get("/search", async (req, res) => {
 
 // Obtenir toutes les ventes avec pagination
 router.get("/all", async (req, res) => {
-  const { page = 1, limit = 10 } = req.query;
   try {
-    const ventes = await Vente.find()
-                              .limit(limit * 1)
-                              .skip((page - 1) * limit)
-                              .exec();
-    const count = await Vente.countDocuments();
+    const ventes = await Vente.find().exec();  // Retire la limitation et la pagination
+    const count = await Vente.countDocuments();  // Compte total des documents
     res.status(200).json({
       success: true,
       data: ventes,
-      totalPages: Math.ceil(count / limit),
-      currentPage: page
+      totalItems: count
     });
   } catch (error) {
     res.status(500).json({ success: false, message: "Error fetching sales", error });
@@ -103,4 +99,19 @@ router.get("/all", async (req, res) => {
 });
 
 
+router.get('/ventes/date', async (req, res) => {
+  const { date } = req.query; // Expecting date in 'YYYY-MM-DD' format
+  try {
+      const sales = await Sale.find({
+          "DATE DE VENTE": {
+              $gte: new Date(date),
+              $lt: new Date(new Date(date).setDate(new Date(date).getDate() + 1))
+          }
+      });
+      res.json({ success: true, data: sales });
+  } catch (error) {
+      console.error("Failed to fetch sales:", error);
+      res.status(500).json({ success: false, message: "Failed to fetch sales data." });
+  }
+});
 module.exports = router;
