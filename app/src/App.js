@@ -18,7 +18,7 @@ import { ProjectPublic } from "./screens/projects/public";
 
 
 import DateDetails from "./components/DateDetails";
-import SaleDetails from "./components/SaleDetails";
+// import SaleDetails from "./components/SaleDetails";
 
 
 import { environment, SENTRY_URL } from "./config";
@@ -54,10 +54,10 @@ export default function App() {
         <Route path="/auth" component={Auth} />
         <Route path="/connect" component={Connect} />
         <Route path="/public/project" component={ProjectPublic} />
-        <Route path="/date-details/:date" component={DateDetails} />
+        <Route path="/projects/:date" component={DateDetails} />
         <Layout>
           <RestrictedRoute path="/account" component={Account} />
-          <RestrictedRoute path="/projects" component={Projects} />
+          {/* <RestrictedRoute path="/projects" component={Projects} /> */}
           <RestrictedRoute path="/equipe" component={Equipe} />
           <RestrictedRoute path="/explorer" component={Explorer} />
           <RestrictedRoute path="/" component={Dashboard} exact />

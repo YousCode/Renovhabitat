@@ -84,26 +84,27 @@ router.get("/date", async (req, res) => {
 
 router.get("/all", async (req, res) => {
   try {
-      console.log("Fetching all sales");
       const ventes = await Vente.find();
-      console.log("Found sales:", ventes);
-      res.status(200).send({ success: true, data: ventes });
+      res.status(200).json({ success: true, data: ventes });
   } catch (error) {
-      console.error("Error fetching sales", error);
-      res.status(500).send({ success: false, message: error.message });
+      console.error("Error fetching sales data:", error);  // Log the error
+      res.status(500).json({ success: false, message: "An error occurred while fetching sales data." });
   }
 });
 
-// Récupérer une vente par ID
+
+// Fetch sale by ID
 router.get("/:id", async (req, res) => {
   try {
-    const vente = await Vente.findById(req.params.id);
-    if (!vente) {
-      return res.status(404).send({ success: false, message: "Vente non trouvée" });
-    }
-    res.status(200).send({ success: true, data: vente });
+      const vente = await Vente.findById(req.params.id);
+      if (!vente) {
+          return res.status(404).json({ success: false, message: "Vente non trouvée" });
+      }
+      res.status(200).json({ success: true, data: vente });
   } catch (error) {
-    res.status(500).send({ success: false, message: error.message });
+      res.status(500).json({ success: false, message: error.message });
   }
 });
+
+
 module.exports = router;
