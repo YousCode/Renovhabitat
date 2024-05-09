@@ -99,19 +99,41 @@ router.get("/all", async (req, res) => {
 });
 
 
-router.get('/ventes/date', async (req, res) => {
-  const { date } = req.query; // Expecting date in 'YYYY-MM-DD' format
+router.get("/date", async (req, res) => {
   try {
-      const sales = await Sale.find({
-          "DATE DE VENTE": {
-              $gte: new Date(date),
-              $lt: new Date(new Date(date).setDate(new Date(date).getDate() + 1))
-          }
-      });
-      res.json({ success: true, data: sales });
+    const { date } = req.query;
+    if (!date) {
+      return res.status(400).json({ success: false, message: "Missing 'date' query parameter." });
+    }
+
+    // Parse input date
+    const inputDate = new Date(date);
+
+    // Convert to the UTC start of the day (midnight)
+    const startOfDay = new Date(Date.UTC(inputDate.getUTCFullYear(), inputDate.getUTCMonth(), inputDate.getUTCDate()));
+    const endOfDay = new Date(startOfDay);
+    endOfDay.setUTCDate(startOfDay.getUTCDate() + 1);
+
+    // Log the range for debugging purposes
+    console.log(`Fetching sales data from: ${startOfDay.toISOString()} to: ${endOfDay.toISOString()}`);
+
+    // Query for sales within the specified day
+    const sales = await Vente.find({
+      "DATE DE VENTE": { $gte: startOfDay, $lt: endOfDay }
+    });
+
+    // Log fetched sales data
+    console.log("Sales data fetched:", sales);
+
+    // Return the sales data
+    res.status(200).json({ success: true, data: sales });
   } catch (error) {
-      console.error("Failed to fetch sales:", error);
-      res.status(500).json({ success: false, message: "Failed to fetch sales data." });
+    console.error("Failed to fetch sales:", error.message);
+    res.status(500).json({ success: false, message: "Failed to fetch sales data." });
   }
 });
+
+
+
+
 module.exports = router;

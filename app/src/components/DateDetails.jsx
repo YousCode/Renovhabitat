@@ -1,78 +1,81 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import NewSaleModal from '../components/modal/NewSaleModal';  // Adjust the import path as necessary
 
 const DateDetails = () => {
-    const { date } = useParams();
+    const { date } = useParams(); // Extract the date parameter from the URL
     const [sales, setSales] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [allSales, setAllSales] = useState([]);
     const MIN_ROWS = 15;
 
+    // Function to format the date for display
     const formatDate = (dateStr) => {
         const days = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
-        const date = new Date(dateStr);
-        const dayName = days[date.getDay()];
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const year = date.getFullYear();
+        const dateObj = new Date(dateStr);
+        const dayName = days[dateObj.getDay()];
+        const day = dateObj.getDate().toString().padStart(2, '0');
+        const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+        const year = dateObj.getFullYear();
         return `Planning du ${dayName} ${day}/${month}/${year}`;
-      };
-      
+    };
 
-   
-
-      useEffect(() => {
-        const fetchSalesData = async () => {
-            if (!date) return;
-    
+    // Function to fetch all sales data once
+    useEffect(() => {
+        const fetchAllSalesData = async () => {
             setLoading(true);
             setError(null);
             try {
-                // Ensure the date format matches what the backend expects
-                const formattedDate = new Date(date).toISOString().split('T')[0];
-                const response = await fetch(`/ventes/date?date=${formattedDate}`);
-                console.log(response);
+                const response = await fetch(`http://localhost:8080/ventes/all`);
                 if (!response.ok) {
-                    throw new Error(`Failed to fetch sales: ${response.statusText}`);
+                    throw new Error(`Failed to fetch data with status ${response.status}`);
                 }
-    
                 const data = await response.json();
-                setSales(data.data);
+                setAllSales(data.data || []);
             } catch (error) {
-                console.error("Error fetching sales data:", error);
-                setError(`Error loading sales details: ${error.message}`);
+                console.error("Error fetching all sales data:", error);
+                setError(`Error: ${error.message}`);
             } finally {
                 setLoading(false);
             }
         };
-    
-        fetchSalesData();
-    }, [date]);  // Ensure this effect runs anytime the 'date' parameter changes
-    
+        fetchAllSalesData();
+    }, []);
 
+    // Function to filter sales data by the selected date
+    useEffect(() => {
+        if (!date || !allSales.length) return;
+
+        const inputDate = new Date(date);
+        inputDate.setUTCHours(0, 0, 0, 0);
+        const nextDay = new Date(inputDate);
+        nextDay.setUTCDate(inputDate.getUTCDate() + 1);
+
+        const filteredSales = allSales.filter(sale => {
+            const saleDate = new Date(sale["DATE DE VENTE"]);
+            return saleDate >= inputDate && saleDate < nextDay;
+        });
+
+        setSales(filteredSales);
+    }, [date, allSales]);
+
+    // Function to handle adding new sales through the modal
     const handleAddSale = (newSale) => {
         setSales(prev => [...prev, newSale]);
-        setIsModalOpen(false);
     };
 
+    // Create empty rows to keep the table structure consistent
     const emptyRowsCount = Math.max(0, MIN_ROWS - sales.length);
     const emptyRows = Array.from({ length: emptyRowsCount });
     const formattedDate = formatDate(date);
-    
+
     return (
         <div className="p-6">
-            {/* <h2 className="text-2xl font-bold mb-4">Details for {date}</h2> */}
             <h2 className="text-2xl font-bold mb-4">{formattedDate}</h2>
-            <button 
-                className="mb-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                onClick={() => setIsModalOpen(true)}
-            >
-                Add New Sale
-            </button>
             {loading ? (
                 <p>Loading...</p>
+            ) : error ? (
+                <p>Error: {error}</p>
             ) : (
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
@@ -114,15 +117,8 @@ const DateDetails = () => {
                     </table>
                 </div>
             )}
-            {isModalOpen && (
-                <NewSaleModal 
-                    onClose={() => setIsModalOpen(false)} 
-                    onAdd={handleAddSale} 
-                />
-            )}
         </div>
     );
 };
 
 export default DateDetails;
-// const data = require('../screens/dashboard/Renovhanbitat.vente.json');
