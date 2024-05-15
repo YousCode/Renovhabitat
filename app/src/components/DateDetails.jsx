@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useHistory } from "react-router-dom";
 
 const DateDetails = () => {
     const { date } = useParams(); // Extract the date parameter from the URL
@@ -8,8 +9,9 @@ const DateDetails = () => {
     const [error, setError] = useState(null);
     const [allSales, setAllSales] = useState([]);
     const MIN_ROWS = 15;
+    const history = useHistory();
 
-
+    const [selectedRowIndex, setSelectedRowIndex] = useState(null);
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
 
@@ -92,69 +94,72 @@ const DateDetails = () => {
             setIsSearching(false);
         }
     };
-    
 
     // Handle new sale form input changes
     const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setNewSale(prev => ({ ...prev, [name]: value }));
+        const { name, value } = event.target;
+        setNewSale(prev => ({ ...prev, [name]: value }));
 
-    if (name === "clientName") {
-        if (value.length > 2) { // Only search if the input length is greater than 2 characters to reduce unnecessary requests.
-            performSearch(value);
-        } else {
-            setSearchResults([]); // Clear results if the input is cleared or too short.
+        if (name === "clientName") {
+            if (value.length > 2) { // Only search if the input length is greater than 2 characters to reduce unnecessary requests.
+                performSearch(value);
+            } else {
+                setSearchResults([]); // Clear results if the input is cleared or too short.
+            }
         }
-    }
-};
-
-
-const handleSelectSale = (sale) => {
-    setNewSale(prev => ({
-        ...prev,
-        clientName: sale["NOM DU CLIENT"],
-        orderNumber: sale["NUMERO BC"]
-    }));
-    setSearchResults([]); // Optionally clear the search results after selection
-};
-
-    // Submit the new sale form
-   // Function to submit the new sale form
-const handleAddSale = async (event) => {
-    event.preventDefault();
-
-    const newSaleEntry = {
-        "DATE DE VENTE": new Date(date), // Ensure the date is correctly formatted
-        "NOM DU CLIENT": newSale.clientName,
-        "TELEPHONE": newSale.phoneNumber,
-        "VILLE": newSale.city,
-        "NUMERO BC": newSale.orderNumber,
-        "DESIGNATION": newSale.workDescription,
-        "ETAT": newSale.status,
-        // Add other fields here as needed
     };
 
-    try {
-        const response = await fetch('http://localhost:8080/ventes', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newSaleEntry)
-        });
+    const handleSelectSale = (sale) => {
+        setNewSale(prev => ({
+            ...prev,
+            clientName: sale["NOM DU CLIENT"],
+            orderNumber: sale["NUMERO BC"]
+        }));
+        setSearchResults([]); // Optionally clear the search results after selection
+    };
 
-        if (response.ok) {
-            const savedSale = await response.json();
-            setSales(prev => [...prev, savedSale.data]);
-            // Clear the input fields after successful submission
-            setNewSale({ clientName: '', phoneNumber: '', city: '', orderNumber: '', workDescription: '', status: '' });
-        } else {
-            const errorData = await response.json();
-            throw new Error(errorData.message || `Error: ${response.status}`);
+    const handleAddSale = async (event) => {
+        event.preventDefault();
+
+        const newSaleEntry = {
+            "DATE DE VENTE": new Date(date), // Ensure the date is correctly formatted
+            "NOM DU CLIENT": newSale.clientName,
+            "TELEPHONE": newSale.phoneNumber,
+            "VILLE": newSale.city,
+            "NUMERO BC": newSale.orderNumber,
+            "DESIGNATION": newSale.workDescription,
+            "ETAT": newSale.status,
+        };
+
+        try {
+            const response = await fetch('http://localhost:8080/ventes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newSaleEntry)
+            });
+
+            if (response.ok) {
+                const savedSale = await response.json();
+                setSales(prev => [...prev, savedSale.data]);
+                // Clear the input fields after successful submission
+                setNewSale({ clientName: '', phoneNumber: '', city: '', orderNumber: '', workDescription: '', status: '' });
+            } else {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `Error: ${response.status}`);
+            }
+        } catch (error) {
+            console.error("Error saving new sale:", error.message);
         }
-    } catch (error) {
-        console.error("Error saving new sale:", error.message);
-    }
-};
+    };
 
+    const handleEditSale = (saleId) => {
+        history.push(`/sales/edit/${saleId}`);
+    };
+
+    const handleDeleteSale = (saleId) => {
+        console.log("Deleting sale with ID:", saleId);
+        // Add logic to delete sale
+    };
 
     // Create empty rows to ensure there are at least 15 rows in the table
     const emptyRowsCount = Math.max(0, MIN_ROWS - sales.length);
@@ -162,7 +167,7 @@ const handleAddSale = async (event) => {
 
     return (
         <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">{formattedDate}</h2>
+            <h2 className="text-2xl text-white font-bold mb-4">{formattedDate}</h2>
             {loading ? (
                 <p>Loading...</p>
             ) : error ? (
@@ -180,6 +185,7 @@ const handleAddSale = async (event) => {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">VTC</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Travaux</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Résultat</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -193,42 +199,60 @@ const handleAddSale = async (event) => {
                                         <td className="px-6 py-4 whitespace-nowrap">{sale["NUMERO BC"]}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{sale["DESIGNATION"]}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{sale["ETAT"]}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <button
+                                                onClick={() => handleEditSale(sale["_id"])}
+                                                className="bg-indigo-500 text-white py-2 px-4 rounded-md mr-2">
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteSale(sale["_id"])}
+                                                className="bg-red-500 text-white py-2 px-4 rounded-md">
+                                                Delete
+                                            </button>
+                                        </td>
                                     </tr>
                                 ))}
                                 {/* First Empty Row with Input Fields */}
                                 {emptyRowsCount > 0 && (
                                     <tr>
-                                        <td className="px-6 py-4 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="time" name="saleTime"  /></td>
-                                        <td className="px-6 py-4 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="text" name="clientName" value={newSale.clientName}
-                                                                onChange={handleInputChange}
-                                                                required
-                                                            />
-                                                            {isSearching && <div>Searching...</div>}
-                                                            {searchResults.length > 0 && (
-                                                                <ul className="absolute  bg-white shadow-lg mt-1 max-h-60 overflow-auto z-10">
-                                                                {searchResults.map((sale, index) => (
-                                                                    <li key={index} 
-                                                                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200"
-                                                                        onClick={() => handleSelectSale(sale)}>
-                                                                        {sale["NOM DU CLIENT"]} - {sale["NUMERO BC"]}
-                                                                    </li>
-                                                                ))}
-                                                            </ul>
-                                                            )}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="time" name="saleTime" /></td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <input className="border p-2 rounded-md w-full" type="text" name="clientName" value={newSale.clientName}
+                                                onChange={handleInputChange}
+                                                required
+                                            />
+                                            {isSearching && <div>Searching...</div>}
+                                            {searchResults.length > 0 && (
+                                                <ul className="absolute bg-white shadow-lg mt-1 max-h-60 overflow-auto z-10">
+                                                    {searchResults.map((sale, index) => (
+                                                        <li key={index}
+                                                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200"
+                                                            onClick={() => handleSelectSale(sale)}>
+                                                            {sale["NOM DU CLIENT"]} - {sale["NUMERO BC"]}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="text" name="phoneNumber" value={newSale.phoneNumber} onChange={handleInputChange} required /></td>
                                         <td className="px-6 py-4 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="text" name="city" value={newSale.city} onChange={handleInputChange} required /></td>
                                         <td className="px-6 py-4 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="text" name="orderNumber" value={newSale.orderNumber} onChange={handleInputChange} required /></td>
                                         <td className="px-6 py-4 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="text" name="workDescription" value={newSale.workDescription} onChange={handleInputChange} required /></td>
-                                        <td className="px-6 py-4 whitespace-nowrap"><select className="border p-2 rounded-md w-full" type="text" name="status" value={newSale.status} onChange={handleInputChange} required >
-                                        <option value="En attente">En attente</option>
-                                        <option value="Confirmé">Confirmé</option>
-                                        <option value="Annulé">Annulé</option>
-                                        </select></td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <select className="border p-2 rounded-md w-full" type="text" name="status" value={newSale.status} onChange={handleInputChange} required >
+                                                <option value="En attente">En attente</option>
+                                                <option value="Confirmé">Confirmé</option>
+                                                <option value="Annulé">Annulé</option>
+                                            </select>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">-</td>
                                     </tr>
                                 )}
                                 {/* Remaining Empty Rows with Placeholders */}
                                 {Array.from({ length: emptyRowsCount - 1 }).map((_, index) => (
                                     <tr key={`empty-${index}`}>
+                                        <td className="px-6 py-4 whitespace-nowrap">-</td>
                                         <td className="px-6 py-4 whitespace-nowrap">-</td>
                                         <td className="px-6 py-4 whitespace-nowrap">-</td>
                                         <td className="px-6 py-4 whitespace-nowrap">-</td>

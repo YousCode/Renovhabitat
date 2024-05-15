@@ -25,18 +25,20 @@ router.post("/", [
   }
 });
 
-// Récupérer toutes les ventes avec filtres optionnels
-router.get("/", passport.authenticate("user", { session: false }), async (req, res) => {
-  try {
-    const vente = await Vente.findById(req.params.id);
-    if (!vente) {
-      return res.status(404).json({ success: false, message: "Vente non trouvée" });
-    }
-    res.status(200).json({ success: true, data: vente });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
+// router.get("/:id", passport.authenticate("user", { session: false }),  async (req, res) => {
+//   try {
+//     const vente = await Vente.findById(req.params.id);
+//     if (!vente) {
+//       return res.status(404).json({ success: false, message: "Vente non trouvée" });
+//     }
+//     res.status(200).json({ success: true, data: vente });
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// });
+
+
+
 
 // Mise à jour d'une vente
 router.put("/:id", passport.authenticate("user", { session: false }), async (req, res) => {
@@ -97,43 +99,6 @@ router.get("/all", async (req, res) => {
     res.status(500).json({ success: false, message: "Error fetching sales", error });
   }
 });
-
-
-router.get("/date", async (req, res) => {
-  try {
-    const { date } = req.query;
-    if (!date) {
-      return res.status(400).json({ success: false, message: "Missing 'date' query parameter." });
-    }
-
-    // Parse input date
-    const inputDate = new Date(date);
-
-    // Convert to the UTC start of the day (midnight)
-    const startOfDay = new Date(Date.UTC(inputDate.getUTCFullYear(), inputDate.getUTCMonth(), inputDate.getUTCDate()));
-    const endOfDay = new Date(startOfDay);
-    endOfDay.setUTCDate(startOfDay.getUTCDate() + 1);
-
-    // Log the range for debugging purposes
-    console.log(`Fetching sales data from: ${startOfDay.toISOString()} to: ${endOfDay.toISOString()}`);
-
-    // Query for sales within the specified day
-    const sales = await Vente.find({
-      "DATE DE VENTE": { $gte: startOfDay, $lt: endOfDay }
-    });
-
-    // Log fetched sales data
-    console.log("Sales data fetched:", sales);
-
-    // Return the sales data
-    res.status(200).json({ success: true, data: sales });
-  } catch (error) {
-    console.error("Failed to fetch sales:", error.message);
-    res.status(500).json({ success: false, message: "Failed to fetch sales data." });
-  }
-});
-
-
 
 
 module.exports = router;
