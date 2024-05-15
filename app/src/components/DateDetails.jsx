@@ -154,6 +154,7 @@ const DateDetails = () => {
 
     const handleEditSale = (saleId) => {
         history.push(`/sales/edit/${saleId}`);
+        console.log("edit sale with ID:", saleId);
     };
 
     const handleDeleteSale = (saleId) => {
