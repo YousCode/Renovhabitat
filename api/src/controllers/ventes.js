@@ -89,7 +89,7 @@ router.get("/search", async (req, res) => {
     const ventes = await Vente.find({
       $or: [
         { "NOM DU CLIENT": { $regex: searchTerm, $options: "i" } },
-        { "TELEPHONE": searchTerm }
+        { "NUMERO BC": searchTerm }
       ]
     });
     if (ventes.length === 0) {
