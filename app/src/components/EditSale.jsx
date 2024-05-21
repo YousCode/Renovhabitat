@@ -64,13 +64,13 @@ const EditSale = () => {
     if (error) return <p className="text-center text-red-500">{error}</p>;
 
     return (
-        <div className="max-w-3xl mx-auto p-6 bg-gray-100 rounded-lg shadow-md">
-            <h2 className="text-2xl text-gray-800 font-bold mb-6 text-center">Edit Sale</h2>
+        <div style={{ backgroundColor: '#005C47' }} className="max-w-4xl  mx-auto p-6 bg-gray-100 rounded-lg shadow-md">
+            <h2 className="text-2xl text-[#B0FFE9] font-bold mb-6 text-center">Modifier la vente</h2>
             <form onSubmit={handleSave}>
                 {Object.entries(sale).map(([key, value]) => (
                     key !== "_id" && (
                         <div className="mb-4" key={key}>
-                            <label className="block text-gray-700 capitalize">{key.replace(/_/g, ' ')}</label>
+                            <label className="block text-[#B0FFE9] capitalize">{key.replace(/_/g, ' ')}</label>
                             <input
                                 className="border p-2 rounded-md w-full"
                                 type={key === "DATE DE VENTE" ? "date" : "text"}

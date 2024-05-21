@@ -36,12 +36,12 @@ module.exports = {
       colors: {
         app: {
           DEFAULT: "#2B1C56",
-          navbar: "#0E0623",
-          // navbar: "#8FFF79",
+          // navbar: "#0E0623",
+          navbar: "#111B19",
           // navbar: "#67EBFF",
-          background: "#150C2D",
+          // background: "#150C2D",
           // background: "#8FFF79",
-          // background: "#67EBFF",
+          background: "#071013",
           button: "#511FE0",
           accent: "#1E1438",
           "card-bg": "#39276A",

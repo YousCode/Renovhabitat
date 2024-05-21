@@ -195,7 +195,7 @@ const DateDetails = () => {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody  style={{ backgroundColor: '#FFFACD' }} className="bg-white divide-y divide-gray-200">
+                            <tbody  style={{ backgroundColor: '#00D7A8' }} className="bg-white divide-y divide-gray-200">
                                 {/* Existing Sales Rows */}
                                 {sales.map((sale, index) => (
                                     <tr key={index}>

@@ -67,7 +67,7 @@ export const WeeklyCalendar = () => {
   };
 
   return (
-    <div style={{ position: "relative" }}>
+    <div style={{ position: "relative" ,backgroundColor: '#0A3A31' }} className="rounded-md px-4">
       {loading && <p>Loading...</p>}
       {error && <p>Error: {error}</p>}
       <FullCalendar
@@ -77,7 +77,7 @@ export const WeeklyCalendar = () => {
         dateClick={handleDateClick}
         events={events}
         locale={frLocale}
-        eventClassNames="bg-[#2B1C56] text-white p-2 rounded-md"
+        eventClassNames="bg-[#2da58d] text-white p-2 rounded-md border-[#26685A]"
       />
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
         <HiPlus
