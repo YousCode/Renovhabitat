@@ -25,33 +25,17 @@ router.post("/", [
   }
 });
 
-
-// Obtenir toutes les ventes avec pagination
-router.get("/all", async (req, res) => {
-  try {
-    const ventes = await Vente.find().exec();  // Retire la limitation et la pagination
-    const count = await Vente.countDocuments();  // Compte total des documents
-    res.status(200).json({
-      success: true,
-      data: ventes,
-      totalItems: count
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Error fetching sales", error });
-  }
-});
-
-router.get("/:id", passport.authenticate("user", { session: false }),  async (req, res) => {
-  try {
-    const vente = await Vente.findById(req.params.id);
-    if (!vente) {
-      return res.status(404).json({ success: false, message: "Vente non trouvée" });
-    }
-    res.status(200).json({ success: true, data: vente });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
+// router.get("/:id", passport.authenticate("user", { session: false }),  async (req, res) => {
+//   try {
+//     const vente = await Vente.findById(req.params.id);
+//     if (!vente) {
+//       return res.status(404).json({ success: false, message: "Vente non trouvée" });
+//     }
+//     res.status(200).json({ success: true, data: vente });
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// });
 
 
 
@@ -89,7 +73,7 @@ router.get("/search", async (req, res) => {
     const ventes = await Vente.find({
       $or: [
         { "NOM DU CLIENT": { $regex: searchTerm, $options: "i" } },
-        { "NUMERO BC": searchTerm }
+        { "TELEPHONE": searchTerm }
       ]
     });
     if (ventes.length === 0) {
@@ -101,7 +85,20 @@ router.get("/search", async (req, res) => {
   }
 });
 
-
+// Obtenir toutes les ventes avec pagination
+router.get("/all", async (req, res) => {
+  try {
+    const ventes = await Vente.find().exec();  // Retire la limitation et la pagination
+    const count = await Vente.countDocuments();  // Compte total des documents
+    res.status(200).json({
+      success: true,
+      data: ventes,
+      totalItems: count
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error fetching sales", error });
+  }
+});
 
 
 module.exports = router;

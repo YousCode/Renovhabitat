@@ -113,7 +113,8 @@ const DateDetails = () => {
         setNewSale(prev => ({
             ...prev,
             clientName: sale["NOM DU CLIENT"],
-            orderNumber: sale["NUMERO BC"]
+            orderNumber: sale["VENDEUR"],
+            phoneNumber: sale["TELEPHONE"]
         }));
         setSearchResults([]); // Optionally clear the search results after selection
     };
@@ -126,7 +127,7 @@ const DateDetails = () => {
             "NOM DU CLIENT": newSale.clientName,
             "TELEPHONE": newSale.phoneNumber,
             "VILLE": newSale.city,
-            "NUMERO BC": newSale.orderNumber,
+            "VENDEUR": newSale.orderNumber,
             "DESIGNATION": newSale.workDescription,
             "ETAT": newSale.status,
         };
@@ -141,7 +142,6 @@ const DateDetails = () => {
             if (response.ok) {
                 const savedSale = await response.json();
                 setSales(prev => [...prev, savedSale.data]);
-                // Clear the input fields after successful submission
                 setNewSale({ clientName: '', phoneNumber: '', city: '', orderNumber: '', workDescription: '', status: '' });
             } else {
                 const errorData = await response.json();
@@ -175,10 +175,10 @@ const DateDetails = () => {
                 <p>Error: {error}</p>
             ) : (
                 <>
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-100">
-                                <tr>
+                    <div className="overflow-x-auto" style={{ backgroundColor: '#FFFACD' }}>
+                        <table className="min-w-full divide-y divide-gray-200" style={{ backgroundColor: '#FFFACD' }}>
+                            <thead style={{ backgroundColor: '#FFFACD' }}>
+                                <tr >
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Heure</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tel</th>
@@ -197,7 +197,7 @@ const DateDetails = () => {
                                         <td className="px-6 py-4 whitespace-nowrap">{`${sale["NOM DU CLIENT"]}`}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{sale["TELEPHONE"]}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{sale["VILLE"]}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{sale["NUMERO BC"]}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{sale["VENDEUR"]}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{sale["DESIGNATION"]}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{sale["ETAT"]}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">
@@ -230,7 +230,7 @@ const DateDetails = () => {
                                                         <li key={index}
                                                             className="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200"
                                                             onClick={() => handleSelectSale(sale)}>
-                                                            {sale["NOM DU CLIENT"]} - {sale["NUMERO BC"]}
+                                                            {sale["NOM DU CLIENT"]} - {sale["TELEPHONE"]}
                                                         </li>
                                                     ))}
                                                 </ul>
