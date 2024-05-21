@@ -25,55 +25,17 @@ router.post("/", [
   }
 });
 
-
-
-router.get("/all", async (req, res) => {
-  try {
-    const ventes = await Vente.find().exec();  // Retire la limitation et la pagination
-    const count = await Vente.countDocuments();  // Compte total des documents
-    res.status(200).json({
-      success: true,
-      data: ventes,
-      totalItems: count
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Error fetching sales", error });
-  }
-});
-
-// Rechercher des ventes par nom du client ou numéro BC
-router.get("/search", async (req, res) => {
-  const { searchTerm } = req.query;
-  try {
-    const ventes = await Vente.find({
-      $or: [
-        { "NOM DU CLIENT": { $regex: searchTerm, $options: "i" } },
-        { "TELEPHONE": searchTerm },
-        { "NUMERO BC": searchTerm }
-      ]
-    });
-    if (ventes.length === 0) {
-      return res.status(404).json({ success: false, message: "Aucune vente correspondante trouvée" });
-    }
-    res.status(200).json({ success: true, data: ventes });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Erreur lors de la recherche des ventes", error });
-  }
-});
-
-
-
-router.get("/:id", passport.authenticate("user", { session: false }),  async (req, res) => {
-  try {
-    const vente = await Vente.findById(req.params.id);
-    if (!vente) {
-      return res.status(404).json({ success: false, message: "Vente non trouvée" });
-    }
-    res.status(200).json({ success: true, data: vente });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
+// router.get("/:id", passport.authenticate("user", { session: false }),  async (req, res) => {
+//   try {
+//     const vente = await Vente.findById(req.params.id);
+//     if (!vente) {
+//       return res.status(404).json({ success: false, message: "Vente non trouvée" });
+//     }
+//     res.status(200).json({ success: true, data: vente });
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// });
 
 
 
@@ -104,7 +66,39 @@ router.delete("/:id", passport.authenticate("user", { session: false }), async (
   }
 });
 
+// Rechercher des ventes par nom du client ou numéro BC
+router.get("/search", async (req, res) => {
+  const { searchTerm } = req.query;
+  try {
+    const ventes = await Vente.find({
+      $or: [
+        { "NOM DU CLIENT": { $regex: searchTerm, $options: "i" } },
+        { "TELEPHONE": searchTerm }
+      ]
+    });
+    if (ventes.length === 0) {
+      return res.status(404).json({ success: false, message: "Aucune vente correspondante trouvée" });
+    }
+    res.status(200).json({ success: true, data: ventes });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Erreur lors de la recherche des ventes", error });
+  }
+});
 
+// Obtenir toutes les ventes avec pagination
+router.get("/all", async (req, res) => {
+  try {
+    const ventes = await Vente.find().exec();  // Retire la limitation et la pagination
+    const count = await Vente.countDocuments();  // Compte total des documents
+    res.status(200).json({
+      success: true,
+      data: ventes,
+      totalItems: count
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error fetching sales", error });
+  }
+});
 
 
 module.exports = router;

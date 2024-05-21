@@ -22,7 +22,8 @@ const DateDetails = () => {
         city: '',
         orderNumber: '',
         workDescription: '',
-        status: ''
+        status: 'En attente',
+        numeroBC: ''
     });
 
     // Function to format the date for display
@@ -113,8 +114,9 @@ const DateDetails = () => {
         setNewSale(prev => ({
             ...prev,
             clientName: sale["NOM DU CLIENT"],
-            orderNumber: sale["VENDEUR"],
-            phoneNumber: sale["TELEPHONE"]
+            phoneNumber: sale["TELEPHONE"],
+            numeroBC: sale["NUMERO BC"],
+            orderNumber: sale["VENDEUR"]
         }));
         setSearchResults([]); // Optionally clear the search results after selection
     };
@@ -123,14 +125,17 @@ const DateDetails = () => {
         event.preventDefault();
 
         const newSaleEntry = {
-            "DATE DE VENTE": new Date(date), // Ensure the date is correctly formatted
+            "DATE DE VENTE": new Date(date).toISOString(), // Ensure the date is correctly formatted as an ISO string
             "NOM DU CLIENT": newSale.clientName,
             "TELEPHONE": newSale.phoneNumber,
             "VILLE": newSale.city,
+            "NUMERO BC": newSale.numeroBC,
             "VENDEUR": newSale.orderNumber,
             "DESIGNATION": newSale.workDescription,
             "ETAT": newSale.status,
         };
+
+        console.log("Sending new sale entry:", newSaleEntry); // Log the new sale entry
 
         try {
             const response = await fetch('http://localhost:8080/ventes', {
@@ -142,7 +147,7 @@ const DateDetails = () => {
             if (response.ok) {
                 const savedSale = await response.json();
                 setSales(prev => [...prev, savedSale.data]);
-                setNewSale({ clientName: '', phoneNumber: '', city: '', orderNumber: '', workDescription: '', status: '' });
+                setNewSale({ clientName: '', phoneNumber: '', city: '', orderNumber: '', workDescription: '', status: '', numeroBC: '' });
             } else {
                 const errorData = await response.json();
                 throw new Error(errorData.message || `Error: ${response.status}`);
@@ -183,13 +188,14 @@ const DateDetails = () => {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tel</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ville</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">VTC</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">N° BC</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendeur</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Travaux</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Résultat</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
+                            <tbody  style={{ backgroundColor: '#FFFACD' }} className="bg-white divide-y divide-gray-200">
                                 {/* Existing Sales Rows */}
                                 {sales.map((sale, index) => (
                                     <tr key={index}>
@@ -197,6 +203,7 @@ const DateDetails = () => {
                                         <td className="px-6 py-4 whitespace-nowrap">{`${sale["NOM DU CLIENT"]}`}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{sale["TELEPHONE"]}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{sale["VILLE"]}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{sale["NUMERO BC"]}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{sale["VENDEUR"]}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{sale["DESIGNATION"]}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{sale["ETAT"]}</td>
@@ -238,6 +245,7 @@ const DateDetails = () => {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="text" name="phoneNumber" value={newSale.phoneNumber} onChange={handleInputChange} required /></td>
                                         <td className="px-6 py-4 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="text" name="city" value={newSale.city} onChange={handleInputChange} required /></td>
+                                        <td className="px-6 py-4 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="text" name="numeroBC" value={newSale.numeroBC} onChange={handleInputChange} required /></td>
                                         <td className="px-6 py-4 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="text" name="orderNumber" value={newSale.orderNumber} onChange={handleInputChange} required /></td>
                                         <td className="px-6 py-4 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="text" name="workDescription" value={newSale.workDescription} onChange={handleInputChange} required /></td>
                                         <td className="px-6 py-4 whitespace-nowrap">
@@ -253,6 +261,7 @@ const DateDetails = () => {
                                 {/* Remaining Empty Rows with Placeholders */}
                                 {Array.from({ length: emptyRowsCount - 1 }).map((_, index) => (
                                     <tr key={`empty-${index}`}>
+                                        <td className="px-6 py-4 whitespace-nowrap">-</td>
                                         <td className="px-6 py-4 whitespace-nowrap">-</td>
                                         <td className="px-6 py-4 whitespace-nowrap">-</td>
                                         <td className="px-6 py-4 whitespace-nowrap">-</td>
