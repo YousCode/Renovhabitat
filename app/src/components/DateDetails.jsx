@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useHistory } from "react-router-dom";
+import { EditIcon, CloseIcon } from './icons';
 
 const DateDetails = () => {
     const { date } = useParams(); // Extract the date parameter from the URL
@@ -180,9 +181,9 @@ const DateDetails = () => {
                 <p>Error: {error}</p>
             ) : (
                 <>
-                    <div className="overflow-x-auto" style={{ backgroundColor: '#FFFACD' }}>
-                        <table className="min-w-full divide-y divide-gray-200" style={{ backgroundColor: '#FFFACD' }}>
-                            <thead style={{ backgroundColor: '#FFFACD' }}>
+                    <div className="overflow-x-auto" style={{ backgroundColor: '#00D7A8' }}>
+                        <table className="min-w-full divide-y divide-gray-200" style={{ backgroundColor: '#00D7A8' }}>
+                            <thead style={{ backgroundColor: '#00D7A8' }}>
                                 <tr >
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Heure</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
@@ -195,7 +196,7 @@ const DateDetails = () => {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody  style={{ backgroundColor: '#00D7A8' }} className="bg-white divide-y divide-gray-200">
+                            <tbody style={{ backgroundColor: '#FFFACD' }} className="bg-white divide-y divide-gray-200">
                                 {/* Existing Sales Rows */}
                                 {sales.map((sale, index) => (
                                     <tr key={index}>
@@ -210,14 +211,19 @@ const DateDetails = () => {
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <button
                                                 onClick={() => handleEditSale(sale["_id"])}
-                                                className="bg-indigo-500 text-white py-2 px-4 rounded-md mr-2">
-                                                Edit
+                                                className="bg-blue-500 text-white p-2 rounded-md mr-2"
+                                                title="Edit"
+                                            >
+                                                <EditIcon className="w-4 h-4" />
                                             </button>
                                             <button
                                                 onClick={() => handleDeleteSale(sale["_id"])}
-                                                className="bg-red-500 text-white py-2 px-4 rounded-md">
-                                                Delete
+                                                className="bg-red-200 text-red p-2 rounded-md"
+                                                title="Delete"
+                                            >
+                                                <CloseIcon className="w-4 h-4" />
                                             </button>
+
                                         </td>
                                     </tr>
                                 ))}
