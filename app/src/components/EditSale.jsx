@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
+import useClickOutside from '../hooks/useClickOutside'; // Assurez-vous d'ajuster le chemin en fonction de votre structure de fichiers
 
 const EditSale = () => {
     const { saleId } = useParams();
@@ -7,6 +8,11 @@ const EditSale = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const history = useHistory();
+    const formRef = useRef(null);
+
+    useClickOutside(formRef, () => {
+        history.goBack();
+    });
 
     useEffect(() => {
         const fetchSale = async () => {
@@ -63,40 +69,66 @@ const EditSale = () => {
     if (loading) return <p className="text-center text-gray-700">Loading...</p>;
     if (error) return <p className="text-center text-red-500">{error}</p>;
 
+    const defaultSale = {
+        "DATE DE VENTE": "",
+        "CIVILITE": "",
+        "NOM DU CLIENT": "",
+        "prenom": "",
+        "NUMERO BC": "",
+        "TE": "",
+        "ADRESSE DU CLIENT": "",
+        "CODE INTERP etage": "",
+        "VILLE": "",
+        "CP": "",
+        "TELEPHONE": "",
+        "VENDEUR": "",
+        "DESIGNATION": "",
+        "TAUX TVA": "",
+        "COMISSION SOLO": "",
+        "MONTANT TTC ": "",
+        "MONTANT HT": "",
+        "MONTANT ANNULE": "",
+        // "ETAT": "En attente"
+    };
+
+    const currentSale = { ...defaultSale, ...sale };
+
     return (
-        <div style={{ backgroundColor: '#005C47' }} className="max-w-4xl  mx-auto p-6 bg-gray-100 rounded-lg shadow-md">
-            <h2 className="text-2xl text-[#B0FFE9] font-bold mb-6 text-center">Modifier la vente</h2>
-            <form onSubmit={handleSave}>
-                {Object.entries(sale).map(([key, value]) => (
-                    key !== "_id" && (
-                        <div className="mb-4" key={key}>
-                            <label className="block text-[#B0FFE9] capitalize">{key.replace(/_/g, ' ')}</label>
-                            <input
-                                className="border p-2 rounded-md w-full"
-                                type={key === "DATE DE VENTE" ? "date" : "text"}
-                                name={key}
-                                value={value}
-                                onChange={handleInputChange}
-                                required={["NOM DU CLIENT", "DATE DE VENTE", "NUMERO BC"].includes(key)}
-                            />
-                        </div>
-                    )
-                ))}
-                <div className="mb-4">
-                    <label className="block text-gray-700">Status</label>
-                    <select
-                        className="border p-2 rounded-md w-full"
-                        name="ETAT"
-                        value={sale["ETAT"]}
-                        onChange={handleInputChange}
-                    >
-                        <option value="En attente">En attente</option>
-                        <option value="Confirmé">Confirmé</option>
-                        <option value="Annulé">Annulé</option>
-                    </select>
-                </div>
-                <button className="bg-blue-500 text-white py-2 px-4 rounded-md mt-4 hover:bg-blue-600 transition duration-300" type="submit">Save</button>
-            </form>
+        <div >
+            <div ref={formRef} style={{ backgroundColor: '#005C47' }} className="max-w-4xl mx-auto p-6 bg-gray-100 rounded-lg shadow-md">
+                <h2 className="text-2xl text-[#B0FFE9] font-bold mb-6 text-center">Modifier la vente</h2>
+                <form onSubmit={handleSave}>
+                    {Object.entries(currentSale).map(([key, value]) => (
+                        key !== "_id" && key !== "createdAt" && key !== "updatedAt" && key !== "__v" && (
+                            <div className="mb-4" key={key}>
+                                <label className="block text-[#B0FFE9] capitalize">{key.replace(/_/g, ' ')}</label>
+                                <input
+                                    className="border p-2 rounded-md w-full"
+                                    type={key === "DATE DE VENTE" ? "date" : "text"}
+                                    name={key}
+                                    value={value || ""}
+                                    onChange={handleInputChange}
+                                    required={["NOM DU CLIENT", "DATE DE VENTE", "NUMERO BC"].includes(key)}
+                                />
+                            </div>
+                        )
+                    ))}
+                    <div className="mb-4">
+                        <label className="block text-[#B0FFE9]">Status</label>
+                        <select
+                            className="border p-2 rounded-md w-full"
+                            name="ETAT"
+                            value={currentSale["ETAT"]}
+                            onChange={handleInputChange}
+                        >
+                            <option value="En attente">En attente</option>
+                            <option value="Confirmé">Confirmé</option>
+                            <option value="Annulé">Annulé</option>
+                        </select>
+                    </div>
+                    <button className="bg-blue-500 text-white py-2 px-4 rounded-md mt-4 hover:bg-blue-600 transition duration-300" type="submit">Validé</button>
+                </form>
+            </div>
         </div>
     );
 };

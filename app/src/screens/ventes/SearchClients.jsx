@@ -7,34 +7,9 @@ const SearchClient = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
 
-  const searchVentes = async () => {
-    setIsSearching(true);
-    setMessage("");
-    try {
-      const response = await fetch(`http://localhost:8080/ventes/search?searchTerm=${encodeURIComponent(searchTerm)}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch: ${response.statusText}`);
-      }
-      const data = await response.json();
-      if (data.success) {
-        setVentes(data.data);
-        if (data.data.length === 0) {
-          setMessage("Aucune vente correspondante trouvée");
-        }
-      } else {
-        setVentes([]);
-        setMessage("Aucune vente correspondante trouvée");
-      }
-    } catch (error) {
-      console.error("Search error:", error);
-      setMessage("Erreur lors de la recherche des ventes");
-    } finally {
-      setIsSearching(false);
-    }
-  };
-
   const handleInputChange = async (e) => {
     setSearchTerm(e.target.value);
+    setMessage("");  // Réinitialiser le message d'erreur
     if (e.target.value) {
       setIsSearching(true);
       try {
@@ -44,20 +19,26 @@ const SearchClient = () => {
         }
         const data = await response.json();
         if (data.success) {
+          setVentes(data.data);
           const uniqueNames = Array.from(new Set(data.data.map(sale => sale["NOM DU CLIENT"])));
           setSearchResults(uniqueNames.map(name => ({
             name,
             sales: data.data.filter(sale => sale["NOM DU CLIENT"] === name)
           })));
+          setMessage("");  // Réinitialiser le message d'erreur si la recherche réussit
         } else {
+          setVentes([]);
           setSearchResults([]);
+          setMessage("Aucune vente correspondante trouvée");
         }
       } catch (error) {
         console.error("Search error:", error);
+        setMessage("Erreur lors de la recherche des ventes");
       } finally {
         setIsSearching(false);
       }
     } else {
+      setVentes([]);
       setSearchResults([]);
     }
   };
@@ -69,19 +50,19 @@ const SearchClient = () => {
   };
 
   return (
-    <div className="bg-gray-100 p-6 min-h-screen">
-      <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-lg relative">
-        <div className="mb-4">
+    <div style={{ backgroundColor: '#071013' }} className="bg-gray-100 p-6 min-h-screen flex">
+      <div className="w-1/3 mr-6">
+        <div className="relative">
           <input
             type="text"
             value={searchTerm}
             onChange={handleInputChange}
-            className="w-full p-3 border border-gray-300 rounded-lg"
-            placeholder="Rechercher par nom du client"
+            className="w-full p-3 pl-10 border border-gray-300 rounded-lg search-input"
+            placeholder="Rechercher par nom du client, numéro de téléphone"
           />
           {isSearching && <div>Recherche en cours...</div>}
           {searchResults.length > 0 && (
-            <ul className="absolute bg-white shadow-lg mt-1 max-h-60 overflow-auto z-10 w-full border border-gray-300 rounded-lg">
+            <ul className="absolute bg-white shadow-lg mt-1 max-h-60 overflow-auto z-10 w-full border border-gray-300 rounded-lg left-0">
               {searchResults.map((result, index) => (
                 <li
                   key={index}
@@ -94,19 +75,19 @@ const SearchClient = () => {
             </ul>
           )}
         </div>
-        <button
-          className={`w-full p-3 rounded-lg ${isSearching ? 'bg-gray-500' : 'bg-blue-500 hover:bg-blue-600'} text-white`}
-          onClick={searchVentes}
-          disabled={isSearching}
-        >
-          {isSearching ? 'Recherche en cours...' : 'Rechercher'}
-        </button>
       </div>
-
-      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="flex-1 mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {message && <p className="text-red-500 col-span-full">{message}</p>}
         {ventes.map((vente) => (
-          <div key={vente._id} className="bg-white p-6 rounded-lg shadow-lg">
+          <div
+            key={vente._id}
+            style={{
+              backgroundColor: vente.ETAT === "Annulé" ? '#ff334e' : '#61D1B7',
+              animation: vente.ETAT === "Annulé" ? 'blink 1s infinite' : 'none',
+              
+            }}
+            className="bg-white p-6 rounded-lg shadow-lg height "
+          >
             <p><strong>Date de Vente:</strong> {new Date(vente["DATE DE VENTE"]).toLocaleDateString()}</p>
             <p><strong>Civilité:</strong> {vente.CIVILITE}</p>
             <p><strong>Nom du Client:</strong> {vente["NOM DU CLIENT"]}</p>
@@ -128,6 +109,18 @@ const SearchClient = () => {
           </div>
         ))}
       </div>
+
+      {/* Add the CSS for the blinking effect */}
+      <style jsx>{`
+        @keyframes blink {
+          0% { opacity: 1; }
+          50% { opacity: 0.5; }
+          100% { opacity: 1; }
+        }
+        .height{
+          height: fit-content;
+        }
+      `}</style>
     </div>
   );
 };
