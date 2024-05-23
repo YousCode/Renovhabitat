@@ -218,7 +218,7 @@ const DateDetails = () => {
                                             </button>
                                             <button
                                                 onClick={() => handleDeleteSale(sale["_id"])}
-                                                className="bg-red-200 text-red p-2 rounded-md"
+                                                className="bg-red-400 text-red p-2 rounded-md"
                                                 title="Delete"
                                             >
                                                 <CloseIcon className="w-4 h-4" />

@@ -135,7 +135,7 @@ export const EditIcon = (props) => {
     <svg
       width="18"
       height="18"
-      fill="currentColor"
+      fill="#00000"
       viewBox="0 0 18 18"
       {...props}
     >
