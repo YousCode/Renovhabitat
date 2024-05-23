@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useHistory } from "react-router-dom";
+import React, { useEffect, useState, useRef } from 'react';
+import { useParams, useHistory } from 'react-router-dom';
 import { EditIcon, CloseIcon } from './icons';
+import useClickOutside from '../hooks/useClickOutside'; // Assurez-vous d'ajuster le chemin en fonction de votre structure de fichiers
 
 const DateDetails = () => {
     const { date } = useParams(); // Extract the date parameter from the URL
@@ -12,6 +12,7 @@ const DateDetails = () => {
     const MIN_ROWS = 15;
     const history = useHistory();
 
+    const formRef = useRef(null);
     const [selectedRowIndex, setSelectedRowIndex] = useState(null);
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -37,6 +38,10 @@ const DateDetails = () => {
         const year = dateObj.getFullYear();
         return `Planning du ${dayName} ${day}/${month}/${year}`;
     };
+
+    useClickOutside(formRef, () => {
+        history.goBack();
+    });
 
     // Fetch all sales data once
     useEffect(() => {
@@ -173,7 +178,7 @@ const DateDetails = () => {
     const formattedDate = formatDate(date);
 
     return (
-        <div className="p-6">
+        <div ref={formRef} className="p-6">
             <h2 className="text-2xl text-white font-bold mb-4">{formattedDate}</h2>
             {loading ? (
                 <p>Loading...</p>

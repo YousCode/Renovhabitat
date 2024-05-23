@@ -4,6 +4,9 @@ const { body, validationResult } = require('express-validator');
 const Vente = require("../models/ventes");
 const passport = require('passport');
 
+// Fonction pour normaliser les numéros de téléphone en enlevant les espaces
+const normalizePhoneNumber = (phoneNumber) => phoneNumber.replace(/\s+/g, "");
+
 // Ajouter une nouvelle vente avec validation
 router.post("/", [
   body('NOM DU CLIENT').not().isEmpty().trim().escape(),
@@ -25,8 +28,6 @@ router.post("/", [
   }
 });
 
-
-
 router.get("/all", async (req, res) => {
   try {
     const ventes = await Vente.find().exec();  // Retire la limitation et la pagination
@@ -41,15 +42,17 @@ router.get("/all", async (req, res) => {
   }
 });
 
-// Rechercher des ventes par nom du client ou numéro BC
+// Rechercher des ventes par nom du client ou numéro BC ou numéro de téléphone (avec ou sans espaces)
 router.get("/search", async (req, res) => {
   const { searchTerm } = req.query;
+  const normalizedSearchTerm = normalizePhoneNumber(searchTerm);
+
   try {
     const ventes = await Vente.find({
       $or: [
         { "NOM DU CLIENT": { $regex: searchTerm, $options: "i" } },
-        { "TELEPHONE": searchTerm },
-        { "NUMERO BC": searchTerm }
+        { "TELEPHONE": { $regex: normalizedSearchTerm, $options: "i" } },
+        // { "NUMERO BC": searchTerm }
       ]
     });
     if (ventes.length === 0) {
@@ -60,8 +63,6 @@ router.get("/search", async (req, res) => {
     res.status(500).json({ success: false, message: "Erreur lors de la recherche des ventes", error });
   }
 });
-
-
 
 router.get("/:id", passport.authenticate("user", { session: false }),  async (req, res) => {
   try {
@@ -74,9 +75,6 @@ router.get("/:id", passport.authenticate("user", { session: false }),  async (re
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
-
-
 
 // Mise à jour d'une vente
 router.put("/:id", passport.authenticate("user", { session: false }), async (req, res) => {
@@ -103,8 +101,5 @@ router.delete("/:id", passport.authenticate("user", { session: false }), async (
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
-
-
 
 module.exports = router;
