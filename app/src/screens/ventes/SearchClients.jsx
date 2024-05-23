@@ -1,5 +1,11 @@
 import React, { useState } from "react";
 
+const normalizeString = (str) => {
+  return str
+    ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+    : "";
+};
+
 const SearchClient = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [ventes, setVentes] = useState([]);
@@ -82,9 +88,8 @@ const SearchClient = () => {
           <div
             key={vente._id}
             style={{
-              backgroundColor: vente.ETAT === "Annulé" ? '#ff334e' : '#61D1B7',
-              animation: vente.ETAT === "Annulé" ? 'blink 1s infinite' : 'none',
-              
+              backgroundColor: normalizeString(vente.ETAT) === "annule" ? '#ff334e' : '#61D1B7',
+              animation: normalizeString(vente.ETAT) === "annule" ? 'blink 1s infinite' : 'none',
             }}
             className="bg-white p-6 rounded-lg shadow-lg height "
           >
@@ -117,7 +122,7 @@ const SearchClient = () => {
           50% { opacity: 0.5; }
           100% { opacity: 1; }
         }
-        .height{
+        .height {
           height: fit-content;
         }
       `}</style>
