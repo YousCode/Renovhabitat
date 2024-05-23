@@ -1,146 +1,254 @@
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { useTranslation } from "react-i18next";
-import { useLocation } from "react-router-dom";
-
-import { LinkIcon, ClipboardIcon } from "src/components/icons";
-import { PlusIcon } from "src/components/icons";
-import Loader from "src/components/loader";
-import { Modal } from "src/components/modal";
-
-import { useModal } from "src/hooks";
-import api from "src/services/api";
-import { appURL } from "../../config";
-import { hotjar } from "react-hotjar";
+import React, { useState, useEffect } from 'react';
+import { Doughnut, Bar } from 'react-chartjs-2';
+import 'chart.js/auto';
 
 export const Equipe = () => {
-  const { t } = useTranslation();
-  const [users, setUsers] = useState();
-  const { isOpen, closeModal, openModal } = useModal();
+    const [salesData, setSalesData] = useState([]);
+    const [filteredSalesData, setFilteredSalesData] = useState([]);
+    const [chartData, setChartData] = useState({
+        labels: [],
+        datasets: [{
+            label: 'Total des ventes',
+            data: [],
+            backgroundColor: [],
+            borderColor: [],
+            borderWidth: 1
+        }]
+    });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedMetric, setSelectedMetric] = useState('MONTANT TTC '); // State to toggle between MONTANT TTC and MONTANT HT
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
-  const location = useLocation();
+    useEffect(() => {
+        fetchSalesData();
+    }, [selectedMetric, startDate, endDate]);
 
-  useEffect(() => {
-    if (hotjar.initialized()) {
-      hotjar.stateChange(location);
-    }
-  }, [location]);
+    useEffect(() => {
+        filterSalesData();
+    }, [salesData, searchQuery, selectedMetric, startDate, endDate]);
 
-  useEffect(() => {
-    (async () => {
-      const { data } = await api.get(`/user`);
-      setUsers(data);
-    })();
-  }, []);
+    const fetchSalesData = async () => {
+        setLoading(true);
+        try {
+            const response = await fetch('http://localhost:8080/ventes/all');
+            if (!response.ok) throw new Error('Impossible de récupérer les données des ventes');
+            const data = await response.json();
+            const sales = data.data || [];
+            setSalesData(sales);
+            setLoading(false);
+        } catch (error) {
+            console.error('Erreur:', error);
+            setError(error.message);
+            setLoading(false);
+        }
+    };
 
-  if (!users) return <Loader />;
+    const filterSalesData = () => {
+        let filtered = salesData;
 
-  return (
-    <>
-      <section className="p-4 rounded-lg bg-app space-y-2">
-        <div className="flex lg:items-center lg:justify-between flex-col lg:flex-row gap-2">
-          <h1 className="font-bold text-white">
-            {users.length + " " + t("member.team")}
-          </h1>
-          <button
-            className="px-4 py-2 flex items-center gap-x-2 font-bold text-white bg-app-button rounded-lg text-sm"
-            onClick={openModal}
-          >
-            <PlusIcon />
-            {t("member.invite")}
-          </button>
-        </div>
-        <div className="inline-block min-w-full align-middle">
-          <table className="min-w-full">
-            <thead className="bg-app-card-bg">
-              <tr>
-                <th
-                  scope="col"
-                  className="px-3 py-3 text-left text-xs font-bold text-details-secondary"
+        if (searchQuery.trim() !== '') {
+            filtered = filtered.filter(sale =>
+                sale.VENDEUR && sale.VENDEUR.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+        }
+
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            filtered = filtered.filter(sale => {
+                const saleDate = new Date(sale["DATE DE VENTE"]);
+                return saleDate >= start && saleDate <= end;
+            });
+        }
+
+        setFilteredSalesData(filtered);
+        updateChartData(filtered);
+    };
+
+    const updateChartData = (filteredData) => {
+        const vendorTotals = filteredData.reduce((acc, sale) => {
+            const vendor = sale["VENDEUR"];
+            if (!acc[vendor]) {
+                acc[vendor] = 0;
+            }
+            acc[vendor] += sale[selectedMetric];
+            return acc;
+        }, {});
+
+        const newData = {
+            labels: Object.keys(vendorTotals),
+            datasets: [{
+                label: selectedMetric,
+                data: Object.values(vendorTotals),
+                backgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#4BC0C0',
+                    '#F77825',
+                    '#9966FF'
+                ],
+                borderColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#4BC0C0',
+                    '#F77825',
+                    '#9966FF'
+                ],
+                borderWidth: 1,
+            }]
+        };
+        setChartData(newData);
+    };
+
+    const handleSearchChange = (event) => {
+        setSearchQuery(event.target.value);
+    };
+
+    const handleShowAll = () => {
+        setSearchQuery('');
+        setStartDate('');
+        setEndDate('');
+        setFilteredSalesData(salesData);
+        updateChartData(salesData);
+    };
+
+    const handleMetricChange = (event) => {
+        setSelectedMetric(event.target.value);
+    };
+
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount);
+    };
+
+    const handleStartDateChange = (event) => {
+        setStartDate(event.target.value);
+    };
+
+    const handleEndDateChange = (event) => {
+        setEndDate(event.target.value);
+    };
+
+    const getTopVendors = (sales) => {
+        const vendorTotals = sales.reduce((acc, sale) => {
+            const vendor = sale["VENDEUR"];
+            if (!acc[vendor]) {
+                acc[vendor] = {
+                    MONTANT_TTC: 0,
+                    MONTANT_HT: 0
+                };
+            }
+            acc[vendor].MONTANT_TTC += sale["MONTANT TTC "];
+            acc[vendor].MONTANT_HT += sale["MONTANT HT"];
+            return acc;
+        }, {});
+
+        const sortedVendors = Object.entries(vendorTotals).sort((a, b) => b[1].MONTANT_TTC - a[1].MONTANT_TTC);
+        return sortedVendors.slice(0, 5); // Top 5 vendors
+    };
+
+    const topVendors = getTopVendors(filteredSalesData);
+
+    const handlePageChange = (newPage) => {
+        setCurrentPage(newPage);
+    };
+
+    const paginatedSalesData = filteredSalesData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    return (
+        <div className="p-6 bg-gray-100 min-h-screen">
+            <h1 className="text-3xl font-bold text-center mb-6">Statistiques des ventes de l'équipe</h1>
+            <div className="flex justify-center mb-6">
+                <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    placeholder="Rechercher par nom de vendeur"
+                    className="border border-gray-300 p-2 rounded-md mr-4"
+                />
+                <button 
+                    onClick={handleShowAll} 
+                    className="bg-blue-500 text-white p-2 rounded-md"
                 >
-                  {t("member")}
-                </th>
-                <th
-                  scope="col"
-                  className="py-3 text-left text-xs font-bold text-details-secondary hidden lg:table-cell"
-                >
-                  {t("member.invitation_date")}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#7665A7] h-[20px] ">
-              {users.map((member) => (
-                <tr key={member._id}>
-                  <td className="whitespace-nowrap lg:py-4 py-3">
-                    <div className="flex items-center">
-                      <div className="h-6 w-6 flex-shrink-0">
-                        <img
-                          className="h-6 w-6 rounded-full"
-                          src={member.avatar}
-                          alt=""
-                        />
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-white font-bold text-xs">
-                          {member.name}
-                        </div>
-                        <div className="text-details-link text-xs">
-                          {member.email}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="whitespace-nowrap py-4 text-xs text-details-link hidden lg:table-cell">
-                    {new Date(member.created_at).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-      <InviteMemberModal isOpen={isOpen} closeModal={closeModal} />
-    </>
-  );
-};
-
-const InviteMemberModal = ({ isOpen, closeModal }) => {
-  const { t } = useTranslation();
-
-  const user = useSelector((state) => state.Auth.user);
-  const url = `${appURL}/auth/signup/${user.workspace_id}`;
-  return (
-    <Modal isOpen={isOpen} closeModal={closeModal}>
-      <div className="space-y-4">
-        <h1 className="text-2xl font-bold text-white text-center">
-          {t("member.invite")}
-        </h1>
-        <p className="text-xs text-details-secondary text-center">
-          {t("member.invitation_description")}
-        </p>
-        <div className="space-y-1">
-          <label className="text-details-secondary text-xxs font-bold inline-block">
-            {t("member.invitation_link")}
-          </label>
-          <div className="py-2 px-4 rounded bg-app-accent flex items-center justify-between">
-            <div className="flex items-center gap-x-4">
-              <LinkIcon />
-              <p className="text-xs text-details-link">{url}</p>
+                    Afficher tout
+                </button>
             </div>
-            <button onClick={() => navigator.clipboard.writeText(url)}>
-              <ClipboardIcon />
-            </button>
-          </div>
+            <div className="flex justify-center mb-6">
+                <select 
+                    onChange={handleMetricChange} 
+                    value={selectedMetric}
+                    className="border border-gray-300 p-2 rounded-md mr-4"
+                >
+                    <option value="MONTANT TTC ">MONTANT TTC</option>
+                    <option value="MONTANT HT">MONTANT HT</option>
+                </select>
+                <input
+                    type="date"
+                    value={startDate}
+                    onChange={handleStartDateChange}
+                    className="border border-gray-300 p-2 rounded-md mr-4"
+                />
+                <input
+                    type="date"
+                    value={endDate}
+                    onChange={handleEndDateChange}
+                    className="border border-gray-300 p-2 rounded-md"
+                />
+            </div>
+            {loading && <p className="text-center">Chargement...</p>}
+            {error && <p className="text-center text-red-500">Erreur : {error}</p>}
+            {!loading && !error && paginatedSalesData.length > 0 && (
+                <>
+                    <div className="bg-white p-4 rounded-lg shadow mb-6">
+                        <Doughnut data={chartData} options={{ responsive: true }} />
+                    </div>
+                    <div className="bg-white p-4 rounded-lg shadow mb-6">
+                        <h2 className="text-2xl font-bold mb-4">Top 5 des vendeurs</h2>
+                        <ul>
+                            {topVendors.map(([vendor, totals], index) => (
+                                <li key={index} className="mb-2">
+                                    {vendor} - {formatCurrency(totals.MONTANT_TTC)} (TTC) / {formatCurrency(totals.MONTANT_HT)} (HT)
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg shadow mb-6">
+                        <h2 className="text-2xl font-bold mb-4">Données des ventes</h2>
+                        <ul>
+                            {paginatedSalesData.map((sale, index) => (
+                                <li key={index} className="mb-2">
+                                    {sale["VENDEUR"]} - {sale["DESIGNATION"]} - {formatCurrency(sale[selectedMetric])}
+                                </li>
+                            ))}
+                        </ul>
+                        <div className="flex justify-between mt-4">
+                            <button 
+                                onClick={() => handlePageChange(currentPage - 1)} 
+                                disabled={currentPage === 1}
+                                className="bg-gray-500 text-white p-2 rounded-md"
+                            >
+                                Précédent
+                            </button>
+                            <button 
+                                onClick={() => handlePageChange(currentPage + 1)} 
+                                disabled={currentPage * itemsPerPage >= filteredSalesData.length}
+                                className="bg-gray-500 text-white p-2 rounded-md"
+                            >
+                                Suivant
+                            </button>
+                        </div>
+                    </div>
+                </>
+            )}
+            {!loading && !error && paginatedSalesData.length === 0 && (
+                <p className="text-center">Aucune donnée de vente disponible pour le vendeur sélectionné.</p>
+            )}
         </div>
-        <div className="flex items-center justify-center">
-          <button
-            className="py-2 w-1/3 rounded-lg text-white font-bold bg-[#4119B5]"
-            onClick={closeModal}
-          >
-            OK
-          </button>
-        </div>
-      </div>
-    </Modal>
-  );
+    );
 };
