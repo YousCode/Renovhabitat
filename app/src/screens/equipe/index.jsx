@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Doughnut, Bar } from 'react-chartjs-2';
+import { Doughnut } from 'react-chartjs-2';
 import 'chart.js/auto';
+import { FaCalendarAlt, FaFilter } from 'react-icons/fa'; // Importing FontAwesome icons
 
 export const Equipe = () => {
     const [salesData, setSalesData] = useState([]);
@@ -21,8 +22,6 @@ export const Equipe = () => {
     const [selectedMetric, setSelectedMetric] = useState('MONTANT TTC '); // State to toggle between MONTANT TTC and MONTANT HT
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
 
     useEffect(() => {
         fetchSalesData();
@@ -80,18 +79,25 @@ export const Equipe = () => {
             return acc;
         }, {});
 
+        const sortedVendors = Object.entries(vendorTotals).sort((a, b) => b[1] - a[1]).slice(0, 10);
+
         const newData = {
-            labels: Object.keys(vendorTotals),
+            labels: sortedVendors.map(([vendor]) => vendor),
             datasets: [{
                 label: selectedMetric,
-                data: Object.values(vendorTotals),
+                data: sortedVendors.map(([, total]) => total),
                 backgroundColor: [
                     '#FF6384',
                     '#36A2EB',
                     '#FFCE56',
                     '#4BC0C0',
                     '#F77825',
-                    '#9966FF'
+                    '#9966FF',
+                    '#FF9F40',
+                    '#B21FDE',
+                    '#2FDE00',
+                    '#00A6B4',
+                    '#6800B4'
                 ],
                 borderColor: [
                     '#FF6384',
@@ -99,7 +105,12 @@ export const Equipe = () => {
                     '#FFCE56',
                     '#4BC0C0',
                     '#F77825',
-                    '#9966FF'
+                    '#9966FF',
+                    '#FF9F40',
+                    '#B21FDE',
+                    '#2FDE00',
+                    '#00A6B4',
+                    '#6800B4'
                 ],
                 borderWidth: 1,
             }]
@@ -155,14 +166,8 @@ export const Equipe = () => {
 
     const topVendors = getTopVendors(filteredSalesData);
 
-    const handlePageChange = (newPage) => {
-        setCurrentPage(newPage);
-    };
-
-    const paginatedSalesData = filteredSalesData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
     return (
-        <div className="p-6 bg-gray-100 min-h-screen">
+        <div className="p-6 min-h-screen bg-gray-900 text-white">
             <h1 className="text-3xl font-bold text-center mb-6">Statistiques des ventes de l'équipe</h1>
             <div className="flex justify-center mb-6">
                 <input
@@ -170,7 +175,7 @@ export const Equipe = () => {
                     value={searchQuery}
                     onChange={handleSearchChange}
                     placeholder="Rechercher par nom de vendeur"
-                    className="border border-gray-300 p-2 rounded-md mr-4"
+                    className="border border-gray-300 p-2 rounded-md mr-4 text-black"
                 />
                 <button 
                     onClick={handleShowAll} 
@@ -179,74 +184,54 @@ export const Equipe = () => {
                     Afficher tout
                 </button>
             </div>
-            <div className="flex justify-center mb-6">
+            <div className="flex justify-center mb-6 gap-4">
                 <select 
                     onChange={handleMetricChange} 
                     value={selectedMetric}
-                    className="border border-gray-300 p-2 rounded-md mr-4"
+                    className="border border-gray-300 p-2 rounded-md text-black"
                 >
                     <option value="MONTANT TTC ">MONTANT TTC</option>
                     <option value="MONTANT HT">MONTANT HT</option>
                 </select>
-                <input
-                    type="date"
-                    value={startDate}
-                    onChange={handleStartDateChange}
-                    className="border border-gray-300 p-2 rounded-md mr-4"
-                />
-                <input
-                    type="date"
-                    value={endDate}
-                    onChange={handleEndDateChange}
-                    className="border border-gray-300 p-2 rounded-md"
-                />
+                <div className="flex items-center gap-2">
+                    <FaCalendarAlt />
+                    <input
+                        type="date"
+                        value={startDate}
+                        onChange={handleStartDateChange}
+                        className="border border-gray-300 p-2 rounded-md text-black"
+                    />
+                </div>
+                <div className="flex items-center gap-2">
+                    <FaCalendarAlt />
+                    <input
+                        type="date"
+                        value={endDate}
+                        onChange={handleEndDateChange}
+                        className="border border-gray-300 p-2 rounded-md text-black"
+                    />
+                </div>
             </div>
             {loading && <p className="text-center">Chargement...</p>}
             {error && <p className="text-center text-red-500">Erreur : {error}</p>}
-            {!loading && !error && paginatedSalesData.length > 0 && (
+            {!loading && !error && filteredSalesData.length > 0 && (
                 <>
-                    <div className="bg-white p-4 rounded-lg shadow mb-6">
-                        <Doughnut data={chartData} options={{ responsive: true }} />
+                    <div className="bg-white p-4 rounded-lg shadow mb-6 max-w-xl mx-auto">
+                        <Doughnut data={chartData} options={{ responsive: true, maintainAspectRatio: false }} className="h-80" />
                     </div>
-                    <div className="bg-white p-4 rounded-lg shadow mb-6">
+                    <div className="bg-gray-800 p-4 rounded-lg shadow mb-6">
                         <h2 className="text-2xl font-bold mb-4">Top 5 des vendeurs</h2>
                         <ul>
                             {topVendors.map(([vendor, totals], index) => (
                                 <li key={index} className="mb-2">
-                                    {vendor} - {formatCurrency(totals.MONTANT_TTC)} (TTC) / {formatCurrency(totals.MONTANT_HT)} (HT)
+                                    {vendor} - {formatCurrency(totals.MONTANT_TTC)} € (TTC) / {formatCurrency(totals.MONTANT_HT)} € (HT)
                                 </li>
                             ))}
                         </ul>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow mb-6">
-                        <h2 className="text-2xl font-bold mb-4">Données des ventes</h2>
-                        <ul>
-                            {paginatedSalesData.map((sale, index) => (
-                                <li key={index} className="mb-2">
-                                    {sale["VENDEUR"]} - {sale["DESIGNATION"]} - {formatCurrency(sale[selectedMetric])}
-                                </li>
-                            ))}
-                        </ul>
-                        <div className="flex justify-between mt-4">
-                            <button 
-                                onClick={() => handlePageChange(currentPage - 1)} 
-                                disabled={currentPage === 1}
-                                className="bg-gray-500 text-white p-2 rounded-md"
-                            >
-                                Précédent
-                            </button>
-                            <button 
-                                onClick={() => handlePageChange(currentPage + 1)} 
-                                disabled={currentPage * itemsPerPage >= filteredSalesData.length}
-                                className="bg-gray-500 text-white p-2 rounded-md"
-                            >
-                                Suivant
-                            </button>
-                        </div>
                     </div>
                 </>
             )}
-            {!loading && !error && paginatedSalesData.length === 0 && (
+            {!loading && !error && filteredSalesData.length === 0 && (
                 <p className="text-center">Aucune donnée de vente disponible pour le vendeur sélectionné.</p>
             )}
         </div>
