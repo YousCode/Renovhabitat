@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
-import useClickOutside from '../hooks/useClickOutside'; // Assurez-vous d'ajuster le chemin en fonction de votre structure de fichiers
+import { useParams, useHistory, useLocation } from 'react-router-dom';
+import useClickOutside from '../hooks/useClickOutside';
 
 const EditSale = () => {
     const { saleId } = useParams();
+    const location = useLocation();
     const [sale, setSale] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -19,12 +20,15 @@ const EditSale = () => {
             setLoading(true);
             try {
                 const response = await fetch(`http://localhost:8080/ventes/${saleId}`, {
-                    credentials: 'include', // Include credentials (cookies)
+                    credentials: 'include',
                 });
                 if (!response.ok) {
                     throw new Error(`Failed to fetch sale with status ${response.status}`);
                 }
                 const data = await response.json();
+                if (location.state?.saleDate) {
+                    data.data["DATE DE VENTE"] = new Date(location.state.saleDate).toISOString().split('T')[0];
+                }
                 setSale(data.data);
             } catch (error) {
                 console.error("Error fetching sale data:", error);
@@ -34,7 +38,7 @@ const EditSale = () => {
             }
         };
         fetchSale();
-    }, [saleId]);
+    }, [saleId, location.state]);
 
     const handleInputChange = (event) => {
         const { name, value } = event.target;
@@ -49,13 +53,12 @@ const EditSale = () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                credentials: 'include', // Include credentials (cookies)
+                credentials: 'include',
                 body: JSON.stringify(sale)
             });
 
             if (response.ok) {
-                // Redirect to the sales list for the specific date
-                const saleDate = new Date(sale["DATE DE VENTE"]).toISOString().split('T')[0]; // Get date in 'YYYY-MM-DD' format
+                const saleDate = new Date(sale["DATE DE VENTE"]).toISOString().split('T')[0];
                 history.push(`/projects/${saleDate}`);
             } else {
                 const errorData = await response.json();
@@ -68,9 +71,10 @@ const EditSale = () => {
 
     if (loading) return <p className="text-center text-gray-700">Loading...</p>;
     if (error) return <p className="text-center text-red-500">{error}</p>;
+    if (!sale) return null;
 
     const defaultSale = {
-        "DATE DE VENTE": "",
+        "DATE DE VENTE": location.state?.saleDate ? new Date(location.state.saleDate).toISOString().split('T')[0] : "",
         "CIVILITE": "",
         "NOM DU CLIENT": "",
         "prenom": "",
@@ -88,13 +92,12 @@ const EditSale = () => {
         "MONTANT TTC ": "",
         "MONTANT HT": "",
         "MONTANT ANNULE": "",
-        // "ETAT": "En attente"
     };
 
     const currentSale = { ...defaultSale, ...sale };
 
     return (
-        <div >
+        <div>
             <div ref={formRef} style={{ backgroundColor: '#005C47' }} className="max-w-4xl mx-auto p-6 bg-gray-100 rounded-lg shadow-md">
                 <h2 className="text-2xl text-[#B0FFE9] font-bold mb-6 text-center">Modifier la vente</h2>
                 <form onSubmit={handleSave}>

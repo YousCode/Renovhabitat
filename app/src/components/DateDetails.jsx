@@ -4,7 +4,7 @@ import { EditIcon, CloseIcon } from './icons';
 import useClickOutside from '../hooks/useClickOutside'; // Assurez-vous d'ajuster le chemin en fonction de votre structure de fichiers
 
 const DateDetails = () => {
-    const { date } = useParams(); // Extract the date parameter from the URL
+    const { date } = useParams();
     const [sales, setSales] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -17,8 +17,7 @@ const DateDetails = () => {
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
 
-    // Form state variables for the new sale
-    const [newSale, setNewSale] = useState({
+    const defaultNewSale = {
         clientName: '',
         phoneNumber: '',
         city: '',
@@ -26,9 +25,10 @@ const DateDetails = () => {
         workDescription: '',
         status: 'En attente',
         numeroBC: ''
-    });
+    };
 
-    // Function to format the date for display
+    const [newSale, setNewSale] = useState(defaultNewSale);
+
     const formatDate = (dateStr) => {
         const days = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
         const dateObj = new Date(dateStr);
@@ -43,7 +43,6 @@ const DateDetails = () => {
         history.goBack();
     });
 
-    // Fetch all sales data once
     useEffect(() => {
         const fetchAllSalesData = async () => {
             setLoading(true);
@@ -65,7 +64,6 @@ const DateDetails = () => {
         fetchAllSalesData();
     }, []);
 
-    // Filter sales data by the selected date
     useEffect(() => {
         if (!date || !allSales.length) return;
 
@@ -102,16 +100,15 @@ const DateDetails = () => {
         }
     };
 
-    // Handle new sale form input changes
     const handleInputChange = (event) => {
         const { name, value } = event.target;
         setNewSale(prev => ({ ...prev, [name]: value }));
 
         if (name === "clientName") {
-            if (value.length > 2) { // Only search if the input length is greater than 2 characters to reduce unnecessary requests.
+            if (value.length > 2) {
                 performSearch(value);
             } else {
-                setSearchResults([]); // Clear results if the input is cleared or too short.
+                setSearchResults([]);
             }
         }
     };
@@ -124,14 +121,14 @@ const DateDetails = () => {
             numeroBC: sale["NUMERO BC"],
             orderNumber: sale["VENDEUR"]
         }));
-        setSearchResults([]); // Optionally clear the search results after selection
+        setSearchResults([]);
     };
 
     const handleAddSale = async (event) => {
         event.preventDefault();
 
         const newSaleEntry = {
-            "DATE DE VENTE": new Date(date).toISOString(), // Ensure the date is correctly formatted as an ISO string
+            "DATE DE VENTE": new Date(date).toISOString(),
             "NOM DU CLIENT": newSale.clientName,
             "TELEPHONE": newSale.phoneNumber,
             "VILLE": newSale.city,
@@ -141,7 +138,7 @@ const DateDetails = () => {
             "ETAT": newSale.status,
         };
 
-        console.log("Sending new sale entry:", newSaleEntry); // Log the new sale entry
+        console.log("Sending new sale entry:", newSaleEntry);
 
         try {
             const response = await fetch('http://localhost:8080/ventes', {
@@ -150,30 +147,39 @@ const DateDetails = () => {
                 body: JSON.stringify(newSaleEntry)
             });
 
-            if (response.ok) {
-                const savedSale = await response.json();
-                setSales(prev => [...prev, savedSale.data]);
-                setNewSale({ clientName: '', phoneNumber: '', city: '', orderNumber: '', workDescription: '', status: '', numeroBC: '' });
-            } else {
+            if (!response.ok) {
                 const errorData = await response.json();
+                console.error("Error response from server:", errorData);
                 throw new Error(errorData.message || `Error: ${response.status}`);
             }
+
+            const savedSale = await response.json();
+            setSales(prev => [...prev, savedSale.data]);
+            setNewSale(defaultNewSale);
         } catch (error) {
             console.error("Error saving new sale:", error.message);
         }
     };
 
-    const handleEditSale = (saleId) => {
-        history.push(`/sales/edit/${saleId}`);
-        console.log("edit sale with ID:", saleId);
+    const handleEditSale = (saleId, saleDate) => {
+        history.push(`/sales/edit/${saleId}`, { saleDate });
     };
 
-    const handleDeleteSale = (saleId) => {
-        console.log("Deleting sale with ID:", saleId);
-        // Add logic to delete sale
+    const handleDeleteSale = async (saleId) => {
+        try {
+            const response = await fetch(`http://localhost:8080/ventes/${saleId}`, {
+                method: 'DELETE',
+                credentials: 'include',
+            });
+            if (!response.ok) {
+                throw new Error('Failed to delete sale');
+            }
+            setSales(prevSales => prevSales.filter(sale => sale._id !== saleId));
+        } catch (error) {
+            console.error("Error deleting sale:", error.message);
+        }
     };
 
-    // Create empty rows to ensure there are at least 15 rows in the table
     const emptyRowsCount = Math.max(0, MIN_ROWS - sales.length);
     const formattedDate = formatDate(date);
 
@@ -202,7 +208,6 @@ const DateDetails = () => {
                                 </tr>
                             </thead>
                             <tbody style={{ backgroundColor: '#FFFACD' }} className="bg-white divide-y divide-gray-200">
-                                {/* Existing Sales Rows */}
                                 {sales.map((sale, index) => (
                                     <tr key={index}>
                                         <td className="px-6 py-4 whitespace-nowrap">{new Date(sale["DATE DE VENTE"]).toLocaleTimeString()}</td>
@@ -215,7 +220,7 @@ const DateDetails = () => {
                                         <td className="px-6 py-4 whitespace-nowrap">{sale["ETAT"]}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <button
-                                                onClick={() => handleEditSale(sale["_id"])}
+                                                onClick={() => handleEditSale(sale["_id"], date)}
                                                 className="bg-blue-500 text-white p-2 rounded-md mr-2"
                                                 title="Edit"
                                             >
@@ -228,17 +233,21 @@ const DateDetails = () => {
                                             >
                                                 <CloseIcon className="w-4 h-4" />
                                             </button>
-
                                         </td>
                                     </tr>
                                 ))}
-                                {/* First Empty Row with Input Fields */}
                                 {emptyRowsCount > 0 && (
                                     <tr>
                                         <td className="px-6 py-4 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="time" name="saleTime" /></td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <input className="border p-2 rounded-md w-full" type="text" name="clientName" value={newSale.clientName}
+                                            <input 
+                                                className="border p-2 rounded-md w-full" 
+                                                type="text" 
+                                                name="clientName" 
+                                                value={newSale.clientName}
                                                 onChange={handleInputChange}
+                                                onBlur={() => setSearchResults([])} 
+                                                onFocus={() => newSale.clientName.length > 2 && setSearchResults(searchResults)} 
                                                 required
                                             />
                                             {isSearching && <div>Searching...</div>}
@@ -247,7 +256,8 @@ const DateDetails = () => {
                                                     {searchResults.map((sale, index) => (
                                                         <li key={index}
                                                             className="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200"
-                                                            onClick={() => handleSelectSale(sale)}>
+                                                            onMouseDown={() => handleSelectSale(sale)} 
+                                                        >
                                                             {sale["NOM DU CLIENT"]} - {sale["TELEPHONE"]}
                                                         </li>
                                                     ))}
@@ -260,7 +270,7 @@ const DateDetails = () => {
                                         <td className="px-6 py-4 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="text" name="orderNumber" value={newSale.orderNumber} onChange={handleInputChange} required /></td>
                                         <td className="px-6 py-4 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="text" name="workDescription" value={newSale.workDescription} onChange={handleInputChange} required /></td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <select className="border p-2 rounded-md w-full" type="text" name="status" value={newSale.status} onChange={handleInputChange} required >
+                                            <select className="border p-2 rounded-md w-full" name="status" value={newSale.status} onChange={handleInputChange} required>
                                                 <option value="En attente">En attente</option>
                                                 <option value="Confirmé">Confirmé</option>
                                                 <option value="Annulé">Annulé</option>
@@ -269,7 +279,6 @@ const DateDetails = () => {
                                         <td className="px-6 py-4 whitespace-nowrap">-</td>
                                     </tr>
                                 )}
-                                {/* Remaining Empty Rows with Placeholders */}
                                 {Array.from({ length: emptyRowsCount - 1 }).map((_, index) => (
                                     <tr key={`empty-${index}`}>
                                         <td className="px-6 py-4 whitespace-nowrap">-</td>
