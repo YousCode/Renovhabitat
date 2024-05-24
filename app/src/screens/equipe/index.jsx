@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import 'chart.js/auto';
-import { FaCalendarAlt, FaFilter } from 'react-icons/fa'; // Importing FontAwesome icons
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { FaCalendarAlt } from 'react-icons/fa'; // Importing FontAwesome icons
 
 export const Equipe = () => {
     const [salesData, setSalesData] = useState([]);
@@ -72,10 +73,13 @@ export const Equipe = () => {
     const updateChartData = (filteredData) => {
         const vendorTotals = filteredData.reduce((acc, sale) => {
             const vendor = sale["VENDEUR"];
+            const amount = sale[selectedMetric];
             if (!acc[vendor]) {
                 acc[vendor] = 0;
             }
-            acc[vendor] += sale[selectedMetric];
+            if (!isNaN(amount)) {
+                acc[vendor] += amount;
+            }
             return acc;
         }, {});
 
@@ -113,6 +117,7 @@ export const Equipe = () => {
                     '#6800B4'
                 ],
                 borderWidth: 1,
+                hoverOffset: 10 // Adding 3D effect
             }]
         };
         setChartData(newData);
@@ -149,14 +154,20 @@ export const Equipe = () => {
     const getTopVendors = (sales) => {
         const vendorTotals = sales.reduce((acc, sale) => {
             const vendor = sale["VENDEUR"];
+            const montantTTC = sale["MONTANT TTC "];
+            const montantHT = sale["MONTANT HT"];
             if (!acc[vendor]) {
                 acc[vendor] = {
                     MONTANT_TTC: 0,
                     MONTANT_HT: 0
                 };
             }
-            acc[vendor].MONTANT_TTC += sale["MONTANT TTC "];
-            acc[vendor].MONTANT_HT += sale["MONTANT HT"];
+            if (!isNaN(montantTTC)) {
+                acc[vendor].MONTANT_TTC += montantTTC;
+            }
+            if (!isNaN(montantHT)) {
+                acc[vendor].MONTANT_HT += montantHT;
+            }
             return acc;
         }, {});
 
@@ -165,6 +176,8 @@ export const Equipe = () => {
     };
 
     const topVendors = getTopVendors(filteredSalesData);
+
+    const totalSales = filteredSalesData.reduce((acc, sale) => acc + (isNaN(sale[selectedMetric]) ? 0 : sale[selectedMetric]), 0);
 
     return (
         <div className="p-6 min-h-screen bg-gray-900 text-white">
@@ -216,19 +229,46 @@ export const Equipe = () => {
             {error && <p className="text-center text-red-500">Erreur : {error}</p>}
             {!loading && !error && filteredSalesData.length > 0 && (
                 <>
-                    <div className="bg-white p-4 rounded-lg shadow mb-6 max-w-xl mx-auto">
-                        <Doughnut data={chartData} options={{ responsive: true, maintainAspectRatio: false }} className="h-80" />
+                    <div className="relative bg-white p-4 rounded-lg shadow mb-6 max-w-xl mx-auto">
+                        <Doughnut 
+                            data={chartData} 
+                            options={{ 
+                                responsive: true, 
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        labels: {
+                                            font: {
+                                                size: 14
+                                            },
+                                            color: '#000000'
+                                        }
+                                    },
+                                    datalabels: {
+                                        display: true,
+                                        color: '#000000',
+                                        formatter: (value) => {
+                                            return formatCurrency(value) + ' €';
+                                        },
+                                        font: {
+                                            size: 14,
+                                            weight: 'bold'
+                                        },
+                                        anchor: 'end',
+                                        align: 'end'
+                                    }
+                                },
+                                cutout: '70%'
+                            }} 
+                            className="h-96"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div className="bg-green text-black rounded-full p-6 shadow">
+                                <span className="text-2xl font-bold">{formatCurrency(totalSales)}</span>
+                            </div>
+                        </div>
                     </div>
-                    <div className="bg-gray-800 p-4 rounded-lg shadow mb-6">
-                        <h2 className="text-2xl font-bold mb-4">Top 5 des vendeurs</h2>
-                        <ul>
-                            {topVendors.map(([vendor, totals], index) => (
-                                <li key={index} className="mb-2">
-                                    {vendor} - {formatCurrency(totals.MONTANT_TTC)} € (TTC) / {formatCurrency(totals.MONTANT_HT)} € (HT)
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                   
                 </>
             )}
             {!loading && !error && filteredSalesData.length === 0 && (
