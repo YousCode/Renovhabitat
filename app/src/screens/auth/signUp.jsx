@@ -79,7 +79,6 @@ export const SignUp = () => {
 
   return (
     <div className="max-w-sm mx-auto text-white py-12 flex items-center flex-col gap-y-12">
-      <img src={require("src/assets/kolab-logo-lg.png")} alt="Kolab Logo" />
       {created ? (
         <p className="text-sm text-center">Account request submitted</p>
       ) : (
