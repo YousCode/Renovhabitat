@@ -45,11 +45,6 @@ export const SignIn = () => {
 
   return (
     <div className="max-w-sm mx-auto text-white py-12 flex items-center justify-center min-h-screen flex-col">
-      <img
-        src={require("src/assets/kolab-logo-lg.png")}
-        alt="Kolab Logo"
-        className="mb-5"
-      />
       <div className="bg-[#100924] p-10 rounded-lg w-full">
         <h1 className="mb-4 font-semibold text-4xl text-center text-transparent bg-gradient-to-l from-[#7537c7] to-[#c957db] bg-clip-text">
           Hello !

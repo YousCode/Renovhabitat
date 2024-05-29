@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 const normalizeString = (str) => {
   return str
@@ -7,81 +8,20 @@ const normalizeString = (str) => {
 };
 
 const SearchClient = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const location = useLocation();
   const [ventes, setVentes] = useState([]);
   const [message, setMessage] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchResults, setSearchResults] = useState([]);
 
-  const handleInputChange = async (e) => {
-    setSearchTerm(e.target.value);
-    setMessage("");  // Réinitialiser le message d'erreur
-    if (e.target.value) {
-      setIsSearching(true);
-      try {
-        const response = await fetch(`http://localhost:8080/ventes/search?searchTerm=${encodeURIComponent(e.target.value)}`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch: ${response.statusText}`);
-        }
-        const data = await response.json();
-        if (data.success) {
-          setVentes(data.data);
-          const uniqueNames = Array.from(new Set(data.data.map(sale => sale["NOM DU CLIENT"])));
-          setSearchResults(uniqueNames.map(name => ({
-            name,
-            sales: data.data.filter(sale => sale["NOM DU CLIENT"] === name)
-          })));
-          setMessage("");  // Réinitialiser le message d'erreur si la recherche réussit
-        } else {
-          setVentes([]);
-          setSearchResults([]);
-          setMessage("Aucune vente correspondante trouvée");
-        }
-      } catch (error) {
-        console.error("Search error:", error);
-        setMessage("Erreur lors de la recherche des ventes");
-      } finally {
-        setIsSearching(false);
-      }
+  useEffect(() => {
+    if (location.state && location.state.sales) {
+      setVentes(location.state.sales);
     } else {
-      setVentes([]);
-      setSearchResults([]);
+      setMessage("Aucune vente correspondante trouvée");
     }
-  };
-
-  const handleSelectSale = (sales) => {
-    setSearchTerm(sales[0]["NOM DU CLIENT"]);
-    setSearchResults([]);
-    setVentes(sales);
-  };
+  }, [location.state]);
 
   return (
     <div style={{ backgroundColor: '#071013' }} className="bg-gray-100 p-6 min-h-screen flex">
-      <div className="w-1/3 mr-6">
-        <div className="relative">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={handleInputChange}
-            className="w-full p-3 pl-10 border border-gray-300 rounded-lg search-input"
-            placeholder="Rechercher par nom du client, numéro de téléphone"
-          />
-          {isSearching && <div>Recherche en cours...</div>}
-          {searchResults.length > 0 && (
-            <ul className="absolute bg-white shadow-lg mt-1 max-h-60 overflow-auto z-10 w-full border border-gray-300 rounded-lg left-0">
-              {searchResults.map((result, index) => (
-                <li
-                  key={index}
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200"
-                  onClick={() => handleSelectSale(result.sales)}
-                >
-                  {result.name} - {result.sales[0]["TELEPHONE"]}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </div>
       <div className="flex-1 mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {message && <p className="text-red-500 col-span-full">{message}</p>}
         {ventes.map((vente) => (
@@ -91,7 +31,7 @@ const SearchClient = () => {
               backgroundColor: normalizeString(vente.ETAT) === "annule" ? '#ff334e' : '#61D1B7',
               animation: normalizeString(vente.ETAT) === "annule" ? 'blink 1s infinite' : 'none',
             }}
-            className="bg-white p-6 rounded-lg shadow-lg height "
+            className="bg-white p-6 rounded-lg shadow-lg height"
           >
             <p><strong>Date de Vente:</strong> {new Date(vente["DATE DE VENTE"]).toLocaleDateString()}</p>
             <p><strong>Civilité:</strong> {vente.CIVILITE}</p>
@@ -114,8 +54,6 @@ const SearchClient = () => {
           </div>
         ))}
       </div>
-
-      {/* Add the CSS for the blinking effect */}
       <style jsx>{`
         @keyframes blink {
           0% { opacity: 1; }
