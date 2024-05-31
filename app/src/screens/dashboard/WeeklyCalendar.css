@@ -1,0 +1,34 @@
+/* .fc .fc-toolbar.fc-header-toolbar {
+    background-color: #2da58d;
+    color: #FFFFFF;
+  } */
+  
+  /* .fc .fc-col-header-cell {
+    background-color: #2da58d;
+    color: #FFFFFF;
+  } */
+  
+  /* .fc .fc-button {
+    background-color: #2da58d;
+    color: #FFFFFF;
+    border: none;
+  } */
+  
+  /* .fc .fc-button:hover {
+    background-color: #239b7e;
+  } */
+  
+  .fc .fc-daygrid-body-natural .fc-daygrid-day-events {
+    margin-bottom: 5rem; /* Tailwind's equivalent for 5rem is mb-20 */
+  }
+  
+  /* .fc .fc-daygrid-day-frame {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  } */
+  
+  /* .fc .fc-day-today {
+    background-color: #e6fffa; 
+  } */
+  

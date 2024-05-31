@@ -6,8 +6,8 @@ import { HiPlus } from "react-icons/hi";
 import frLocale from "@fullcalendar/core/locales/fr";
 import { useHistory } from "react-router-dom";
 
+// import './WeeklyCalendar.css';
 export const WeeklyCalendar = () => {
-  const [modalOpen, setModalOpen] = useState(false);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,7 +22,7 @@ export const WeeklyCalendar = () => {
     setError(null);
     try {
       const response = await fetch("http://localhost:8080/ventes/all", {
-        credentials: 'include'
+        credentials: "include",
       });
       if (!response.ok) {
         throw new Error("Failed to fetch sales data");
@@ -41,11 +41,7 @@ export const WeeklyCalendar = () => {
               allDay: true,
             };
           } catch (error) {
-            console.error(
-              "Invalid date found:",
-              sale["DATE DE VENTE"],
-              error
-            );
+            console.error("Invalid date found:", sale["DATE DE VENTE"], error);
             return null;
           }
         })
@@ -66,7 +62,11 @@ export const WeeklyCalendar = () => {
 
   const handleEventDrop = async (info) => {
     const { event } = info;
-    const newDate = new Date(event.start.getTime() - (event.start.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+    const newDate = new Date(
+      event.start.getTime() - event.start.getTimezoneOffset() * 60000
+    )
+      .toISOString()
+      .split("T")[0];
 
     console.log("Dropped event:", event.title);
     console.log("New date:", newDate);
@@ -83,7 +83,7 @@ export const WeeklyCalendar = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: 'include',  // Include credentials in the request
+        credentials: "include", // Include credentials in the request
         body: JSON.stringify(updatedSale),
       });
 
@@ -112,7 +112,12 @@ export const WeeklyCalendar = () => {
       <FullCalendar
         plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
-        hiddenDays={[0]}
+        headerToolbar={{
+          left: "prev,next today",
+          center: "title",
+          right: "dayGridMonth", // Only month view
+        }}
+        hiddenDays={[]} // Show all days of the week
         dateClick={handleDateClick}
         events={events}
         locale={frLocale}
@@ -120,13 +125,11 @@ export const WeeklyCalendar = () => {
         editable={true} // Enable dragging and resizing
         droppable={true} // Enable dragging from outside
         eventDrop={handleEventDrop} // Handle event drop
+        height="auto" // Ensure calendar is not scrollable and fits content
+        dayHeaderClassNames="bg-[#2da58d] text-white" // Custom class for header
+        dayCellClassNames="border border-gray-200" // Ensure all days have the same size
+        
       />
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <HiPlus
-          className="text-4xl cursor-pointer"
-          onClick={() => setModalOpen(true)}
-        />
-      </div>
     </div>
   );
 };

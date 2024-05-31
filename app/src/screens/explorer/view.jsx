@@ -1,9 +1,7 @@
 import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 export const ExplorerView = () => {
-  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -45,6 +43,10 @@ export const ExplorerView = () => {
     });
   };
 
+  const handleViewAllSales = () => {
+    history.push("/all-sales");
+  };
+
   return (
     <>
       <section className="lg:h-[calc(100vh-82px)] h-[calc(100vh-68px)] absolute lg:top-20 top-[68px] left-0 w-full z-20 flex items-center justify-center">
@@ -67,7 +69,7 @@ export const ExplorerView = () => {
             />
             {isSearching && <div>Recherche en cours...</div>}
             {searchResults.length > 0 && (
-              <ul className="absolute bg-white shadow-lg mt-1 max-h-60  text-black overflow-auto z-10 w-full border border-gray-300 rounded-lg left-0">
+              <ul className="absolute bg-white shadow-lg mt-1 max-h-60 text-black overflow-auto z-10 w-full border border-gray-300 rounded-lg left-0">
                 {searchResults.map((result, index) => (
                   <li
                     key={index}
@@ -80,17 +82,18 @@ export const ExplorerView = () => {
               </ul>
             )}
           </div>
-          {/* <Link
-            to="/ventes"
-            className="text-white py-2 text-center w-full bg-green-500 font-semibold rounded-lg cursor-pointer block"
+          <button
+            onClick={handleViewAllSales}
+            className="w-full bg-green-500 text-white p-3 rounded-lg mt-4"
           >
-            Chercher un client
-          </Link> */}
+            Toutes les ventes
+          </button>
         </div>
       </section>
       <div className="lg:h-[calc(100vh-82px)] h-[calc(100vh-68px)] absolute lg:top-20 top-[68px] left-0 w-full">
         <div className="w-full h-[100%] bg-explore-gradient absolute bottom-0" />
         <img
+          alt="bg"
           src={require("src/assets/explore-bg.png")}
           className="w-full h-full object-cover"
         />
