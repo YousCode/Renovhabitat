@@ -16,6 +16,8 @@ const AllSales = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortOrder, setSortOrder] = useState("asc"); // "asc" or "desc"
+  const [reversePages, setReversePages] = useState(false); // Added for reversing pages
   const history = useHistory();
 
   useEffect(() => {
@@ -28,6 +30,7 @@ const AllSales = () => {
         const data = await response.json();
         setSales(data.data);
         setFilteredSales(data.data);
+        sortSales(data.data, sortOrder); // Initial sort
       } catch (error) {
         console.error("Error fetching sales:", error);
         setError(`Error: ${error.message}`);
@@ -56,13 +59,41 @@ const AllSales = () => {
       normalizeString(sale["NOM DU CLIENT"]).includes(term)
     );
     setFilteredSales(filtered);
-    setCurrentPage(1);
+    // Don't reset the page number
+  };
+
+  const sortSales = (data, order) => {
+    const sortedSales = [...data].sort((a, b) => {
+      const dateA = new Date(a["DATE DE VENTE"]);
+      const dateB = new Date(b["DATE DE VENTE"]);
+      return order === "asc" ? dateA - dateB : dateB - dateA;
+    });
+    setFilteredSales(sortedSales);
+  };
+
+  const handleSortDate = () => {
+    const newSortOrder = sortOrder === "asc" ? "desc" : "asc";
+    setSortOrder(newSortOrder);
+    sortSales(filteredSales, newSortOrder);
+    // setSortClosest(false); // Reset closest date sort
+  };
+
+  const handleReversePages = () => {
+    setReversePages((prev) => !prev);
   };
 
   const displayedSales = filteredSales.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
+
+  const reversedSales = filteredSales.slice().reverse();
+  const displayedReversedSales = reversedSales.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const actualCurrentPage = reversePages ? totalPages - currentPage + 1 : currentPage;
 
   if (loading) return <p className="text-center text-gray-700">Loading...</p>;
   if (error) return <p className="text-center text-red-500">{error}</p>;
@@ -76,25 +107,33 @@ const AllSales = () => {
         >
           Retour
         </button>
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={handleSearchChange}
-          placeholder="Rechercher par nom du client"
-          className="w-1/3 p-2 border border-gray-300 rounded-lg"
-        />
+        <div className="flex items-center w-1/2">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={handleSearchChange}
+            placeholder="Rechercher par nom du client"
+            className="flex-grow p-2 border border-gray-300 rounded-lg"
+          />
+          <button
+            onClick={handleReversePages}
+            className="px-4 py-2 bg-gray-700 text-white rounded-lg ml-2"
+          >
+            Inverser les pages
+          </button>
+        </div>
         <div>
           <button
             onClick={handlePreviousPage}
             className="px-4 py-2 bg-gray-700 text-white rounded-lg mr-2"
-            disabled={currentPage === 1}
+            disabled={actualCurrentPage === 1}
           >
             Précédent
           </button>
           <button
             onClick={handleNextPage}
             className="px-4 py-2 bg-gray-700 text-white rounded-lg"
-            disabled={currentPage === totalPages}
+            disabled={actualCurrentPage === totalPages}
           >
             Suivant
           </button>
@@ -104,7 +143,9 @@ const AllSales = () => {
         <table className="min-w-full bg-white text-gray-800">
           <thead className="bg-gray-700 text-white">
             <tr>
-              <th className="w-1/12 px-4 py-2">Date de Vente</th>
+              <th className="w-1/12 px-4 py-2 cursor-pointer" onClick={handleSortDate}>
+                Date de Vente {sortOrder === "asc" ? "↑" : "↓"}
+              </th>
               <th className="w-1/12 px-4 py-2">Civilité</th>
               <th className="w-1/12 px-4 py-2">Nom du Client</th>
               <th className="w-1/12 px-4 py-2">Prénom</th>
@@ -125,7 +166,7 @@ const AllSales = () => {
             </tr>
           </thead>
           <tbody>
-            {displayedSales.map((sale, index) => (
+            {(reversePages ? displayedReversedSales : displayedSales).map((sale, index) => (
               <tr
                 key={index}
                 className={`${
@@ -149,11 +190,11 @@ const AllSales = () => {
                 <td className="border px-4 py-2">{sale.TELEPHONE}</td>
                 <td className="border px-4 py-2">{sale.VENDEUR}</td>
                 <td className="border px-4 py-2">{sale.DESIGNATION}</td>
-                <td className="border px-4 py-2">{sale["TAUX TVA"]}</td>
-                <td className="border px-4 py-2">{sale["COMISSION SOLO"]}</td>
-                <td className="border px-4 py-2">{sale["MONTANT TTC "]}</td>
-                <td className="border px-4 py-2">{sale["MONTANT HT"]}</td>
-                <td className="border px-4 py-2">{sale["MONTANT ANNULE"]}</td>
+                <td className="border px-4 py-2">{sale["TAUX TVA"]} €</td>
+                <td className="border px-4 py-2">{sale["COMISSION SOLO"]} €</td>
+                <td className="border px-4 py-2">{sale["MONTANT TTC "]} €</td>
+                <td className="border px-4 py-2">{parseFloat(sale["MONTANT HT"]).toFixed(2)} €</td>
+                <td className="border px-4 py-2">{sale["MONTANT ANNULE"]} €</td>
                 <td className="border px-4 py-2">{sale["CA MENSUEL"]}</td>
                 <td className="border px-4 py-2">{sale.ETAT}</td>
               </tr>
@@ -165,15 +206,17 @@ const AllSales = () => {
         <button
           onClick={handlePreviousPage}
           className="px-4 py-2 bg-gray-700 text-white rounded-lg"
-          disabled={currentPage === 1}
+          disabled={actualCurrentPage === 1}
         >
           Précédent
         </button>
-        <span className="text-white">Page {currentPage} sur {totalPages}</span>
+        <span className="text-white">
+          Page {actualCurrentPage} sur {totalPages}
+        </span>
         <button
           onClick={handleNextPage}
           className="px-4 py-2 bg-gray-700 text-white rounded-lg"
-          disabled={currentPage === totalPages}
+          disabled={actualCurrentPage === totalPages}
         >
           Suivant
         </button>
