@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 const normalizeString = (str) => {
   return str
@@ -11,6 +12,7 @@ const SearchClient = () => {
   const location = useLocation();
   const [ventes, setVentes] = useState([]);
   const [message, setMessage] = useState("");
+  const history = useHistory();
 
   useEffect(() => {
     if (location.state && location.state.sales) {
@@ -21,8 +23,17 @@ const SearchClient = () => {
   }, [location.state]);
 
   return (
-    <div style={{ backgroundColor: '#071013' }} className="bg-gray-100 p-6 min-h-screen flex">
-      <div className="flex-1 mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div style={{ backgroundColor: '#071013' }} className="bg-gray-100 p-6 min-h-screen ">
+      <div>
+      <button
+          onClick={() => history.goBack()}
+          className="px-4 py-2 bg-gray-700 text-white rounded-lg"
+        >
+          Retour
+        </button>
+      </div>
+      
+      <div className="flex-1 mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {message && <p className="text-red-500 col-span-full">{message}</p>}
         {ventes.map((vente) => (
           <div

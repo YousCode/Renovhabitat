@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { EditIcon, CloseIcon } from './icons';
-import useClickOutside from '../hooks/useClickOutside'; // Assurez-vous d'ajuster le chemin en fonction de votre structure de fichiers
+import useClickOutside from '../hooks/useClickOutside'; 
 
 const DateDetails = () => {
     const { date } = useParams();
@@ -20,7 +20,7 @@ const DateDetails = () => {
     const defaultNewSale = {
         clientName: '',
         phoneNumber: '',
-        city: '',
+        address: '',
         orderNumber: '',
         workDescription: '',
         status: 'En attente',
@@ -131,7 +131,7 @@ const DateDetails = () => {
             "DATE DE VENTE": new Date(date).toISOString(),
             "NOM DU CLIENT": newSale.clientName,
             "TELEPHONE": newSale.phoneNumber,
-            "VILLE": newSale.city,
+            "ADRESSE DU CLIENT": newSale.address,
             "NUMERO BC": newSale.numeroBC,
             "VENDEUR": newSale.orderNumber,
             "DESIGNATION": newSale.workDescription,
@@ -196,29 +196,29 @@ const DateDetails = () => {
                         <table className="min-w-full divide-y divide-gray-200" style={{ backgroundColor: '#00D7A8' }}>
                             <thead style={{ backgroundColor: '#00D7A8' }}>
                                 <tr >
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Heure</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tel</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ville</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">N° BC</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendeur</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Travaux</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Résultat</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Heure</th>
+                                    <th className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
+                                    <th className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tel</th>
+                                    <th className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ADRESSE DU CLIENT</th>
+                                    <th className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">N° BC</th>
+                                    <th className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendeur</th>
+                                    <th className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Travaux</th>
+                                    <th className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Résultat</th>
+                                    <th className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody style={{ backgroundColor: '#FFFACD' }} className="bg-white divide-y divide-gray-200">
                                 {sales.map((sale, index) => (
                                     <tr key={index}>
-                                        <td className="px-6 py-4 whitespace-nowrap">{new Date(sale["DATE DE VENTE"]).toLocaleTimeString()}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{`${sale["NOM DU CLIENT"]}`}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{sale["TELEPHONE"]}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{sale["VILLE"]}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{sale["NUMERO BC"]}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{sale["VENDEUR"]}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{sale["DESIGNATION"]}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{sale["ETAT"]}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap">{new Date(sale["DATE DE VENTE"]).toLocaleTimeString()}</td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap">{`${sale["NOM DU CLIENT"]}`}</td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap">{sale["TELEPHONE"]}</td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap">{sale["ADRESSE DU CLIENT"]}</td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap">{sale["NUMERO BC"]}</td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap">{sale["VENDEUR"]}</td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap">{sale["DESIGNATION"]}</td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap">{sale["ETAT"]}</td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap">
                                             <button
                                                 onClick={() => handleEditSale(sale["_id"], date)}
                                                 className="bg-blue-500 text-white p-2 rounded-md mr-2"
@@ -238,8 +238,8 @@ const DateDetails = () => {
                                 ))}
                                 {emptyRowsCount > 0 && (
                                     <tr>
-                                        <td className="px-6 py-4 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="time" name="saleTime" /></td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="time" name="saleTime" /></td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap">
                                             <input 
                                                 className="border p-2 rounded-md w-full" 
                                                 type="text" 
@@ -264,32 +264,32 @@ const DateDetails = () => {
                                                 </ul>
                                             )}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="text" name="phoneNumber" value={newSale.phoneNumber} onChange={handleInputChange} required /></td>
-                                        <td className="px-6 py-4 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="text" name="city" value={newSale.city} onChange={handleInputChange} required /></td>
-                                        <td className="px-6 py-4 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="text" name="numeroBC" value={newSale.numeroBC} onChange={handleInputChange} required /></td>
-                                        <td className="px-6 py-4 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="text" name="orderNumber" value={newSale.orderNumber} onChange={handleInputChange} required /></td>
-                                        <td className="px-6 py-4 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="text" name="workDescription" value={newSale.workDescription} onChange={handleInputChange} required /></td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="text" name="phoneNumber" value={newSale.phoneNumber} onChange={handleInputChange} required /></td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="text" name="address" value={newSale.address} onChange={handleInputChange} required /></td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="text" name="numeroBC" value={newSale.numeroBC} onChange={handleInputChange} required /></td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="text" name="orderNumber" value={newSale.orderNumber} onChange={handleInputChange} required /></td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="text" name="workDescription" value={newSale.workDescription} onChange={handleInputChange} required /></td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap">
                                             <select className="border p-2 rounded-md w-full" name="status" value={newSale.status} onChange={handleInputChange} required>
                                                 <option value="En attente">En attente</option>
                                                 <option value="Confirmé">Confirmé</option>
                                                 <option value="Annulé">Annulé</option>
                                             </select>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">-</td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap">-</td>
                                     </tr>
                                 )}
                                 {Array.from({ length: emptyRowsCount - 1 }).map((_, index) => (
                                     <tr key={`empty-${index}`}>
-                                        <td className="px-6 py-4 whitespace-nowrap">-</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">-</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">-</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">-</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">-</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">-</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">-</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">-</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">-</td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap">-</td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap">-</td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap">-</td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap">-</td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap">-</td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap">-</td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap">-</td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap">-</td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap">-</td>
                                     </tr>
                                 ))}
                             </tbody>
