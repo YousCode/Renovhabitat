@@ -24,6 +24,7 @@ import DateDetails from "./components/DateDetails";
 import { environment, SENTRY_URL } from "./config";
 import EditSale from "./components/EditSale";
 import SeachClient from "./screens/ventes/SearchClients";
+import AllSales from "./screens/ventes/AllSales";
 if (environment === "production" && SENTRY_URL) Sentry.init({ dsn: SENTRY_URL, environment: "app" });
 
 hotjar.initialize(hjid, hjsv);
@@ -59,6 +60,7 @@ export default function App() {
         <Route path="/projects/:date" component={DateDetails} />
         <Route path="/sales/edit/:saleId" component={EditSale}/>
         <Route path="/ventes" component={SeachClient}/>
+        <Route path="/all-sales" component={AllSales}/>
         
         <Layout>
           <RestrictedRoute path="/account" component={Account} />
