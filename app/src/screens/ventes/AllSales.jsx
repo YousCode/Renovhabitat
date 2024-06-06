@@ -16,8 +16,9 @@ const AllSales = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortOrder, setSortOrder] = useState("asc"); // "asc" or "desc"
-  const [reversePages, setReversePages] = useState(false); // Added for reversing pages
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [reversePages, setReversePages] = useState(false);
+  const [newSale, setNewSale] = useState(null);
   const history = useHistory();
 
   useEffect(() => {
@@ -30,7 +31,7 @@ const AllSales = () => {
         const data = await response.json();
         setSales(data.data);
         setFilteredSales(data.data);
-        sortSales(data.data, sortOrder); // Initial sort
+        sortSales(data.data, sortOrder);
       } catch (error) {
         console.error("Error fetching sales:", error);
         setError(`Error: ${error.message}`);
@@ -59,7 +60,6 @@ const AllSales = () => {
       normalizeString(sale["NOM DU CLIENT"]).includes(term)
     );
     setFilteredSales(filtered);
-    // Don't reset the page number
   };
 
   const sortSales = (data, order) => {
@@ -75,11 +75,63 @@ const AllSales = () => {
     const newSortOrder = sortOrder === "asc" ? "desc" : "asc";
     setSortOrder(newSortOrder);
     sortSales(filteredSales, newSortOrder);
-    // setSortClosest(false); // Reset closest date sort
   };
 
   const handleReversePages = () => {
     setReversePages((prev) => !prev);
+  };
+
+  const handleAddNewSale = () => {
+    setNewSale({
+      "DATE DE VENTE": "",
+      "CIVILITE": "",
+      "NOM DU CLIENT": "",
+      "prenom": "",
+      "NUMERO BC": "",
+      "ADRESSE DU CLIENT": "",
+      "VILLE": "",
+      "CP": "",
+      "TELEPHONE": "",
+      "VENDEUR": "",
+      "DESIGNATION": "",
+      "TAUX TVA": "",
+      "COMISSION SOLO": "",
+      "MONTANT TTC": "",
+      "MONTANT HT": "",
+      "MONTANT ANNULE": "",
+      "CA MENSUEL": "",
+      "ETAT": "En attente"
+    });
+  };
+
+  const handleNewSaleChange = (e) => {
+    const { name, value } = e.target;
+    setNewSale((prevSale) => ({
+      ...prevSale,
+      [name]: value,
+    }));
+  };
+
+  const handleValidateSale = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/ventes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newSale),
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to add sale: ${response.statusText}`);
+      }
+      const data = await response.json();
+      setSales((prevSales) => [...prevSales, data.data]);
+      setFilteredSales((prevSales) => [...prevSales, data.data]);
+      setNewSale(null);
+    } catch (error) {
+      console.error("Error adding sale:", error);
+      setError(`Error: ${error.message}`);
+    }
   };
 
   const displayedSales = filteredSales.slice(
@@ -139,6 +191,22 @@ const AllSales = () => {
           </button>
         </div>
       </div>
+      <div className="w-full mb-4 flex justify-between">
+        <button
+          onClick={handleAddNewSale}
+          className="px-4 py-2 bg-green-600 text-white rounded-lg"
+        >
+          Ajouter une nouvelle vente
+        </button>
+        {newSale && (
+          <button
+            onClick={handleValidateSale}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+          >
+            Valider la vente
+          </button>
+        )}
+      </div>
       <div className="w-full overflow-x-auto">
         <table className="min-w-full bg-white text-gray-800">
           <thead className="bg-gray-700 text-white">
@@ -166,6 +234,175 @@ const AllSales = () => {
             </tr>
           </thead>
           <tbody>
+            {newSale && (
+              <tr className="bg-green-100">
+                <td className="border px-4 py-2">
+                  <input
+                    type="date"
+                    name="DATE DE VENTE"
+                    value={newSale["DATE DE VENTE"]}
+                    onChange={handleNewSaleChange}
+                    className="w-full p-1 border border-gray-300 rounded-lg"
+                  />
+                </td>
+                <td className="border px-4 py-2">
+                  <input
+                    type="text"
+                    name="CIVILITE"
+                    value={newSale["CIVILITE"]}
+                    onChange={handleNewSaleChange}
+                    className="w-full p-1 border border-gray-300 rounded-lg"
+                  />
+                </td>
+                <td className="border px-4 py-2">
+                  <input
+                    type="text"
+                    name="NOM DU CLIENT"
+                    value={newSale["NOM DU CLIENT"]}
+                    onChange={handleNewSaleChange}
+                    className="w-full p-1 border border-gray-300 rounded-lg"
+                  />
+                </td>
+                <td className="border px-4 py-2">
+                  <input
+                    type="text"
+                    name="prenom"
+                    value={newSale["prenom"]}
+                    onChange={handleNewSaleChange}
+                    className="w-full p-1 border border-gray-300 rounded-lg"
+                  />
+                </td>
+                <td className="border px-4 py-2">
+                  <input
+                    type="text"
+                    name="NUMERO BC"
+                    value={newSale["NUMERO BC"]}
+                    onChange={handleNewSaleChange}
+                    className="w-full p-1 border border-gray-300 rounded-lg"
+                  />
+                </td>
+                <td className="border px-4 py-2">
+                  <input
+                    type="text"
+                    name="ADRESSE DU CLIENT"
+                    value={newSale["ADRESSE DU CLIENT"]}
+                    onChange={handleNewSaleChange}
+                    className="w-full p-1 border border-gray-300 rounded-lg"
+                  />
+                </td>
+                <td className="border px-4 py-2">
+                  <input
+                    type="text"
+                    name="VILLE"
+                    value={newSale["VILLE"]}
+                    onChange={handleNewSaleChange}
+                    className="w-full p-1 border border-gray-300 rounded-lg"
+                  />
+                </td>
+                <td className="border px-4 py-2">
+                  <input
+                    type="text"
+                    name="CP"
+                    value={newSale["CP"]}
+                    onChange={handleNewSaleChange}
+                    className="w-full p-1 border border-gray-300 rounded-lg"
+                  />
+                </td>
+                <td className="border px-4 py-2">
+                  <input
+                    type="text"
+                    name="TELEPHONE"
+                    value={newSale["TELEPHONE"]}
+                    onChange={handleNewSaleChange}
+                    className="w-full p-1 border border-gray-300 rounded-lg"
+                  />
+                </td>
+                <td className="border px-4 py-2">
+                  <input
+                    type="text"
+                    name="VENDEUR"
+                    value={newSale["VENDEUR"]}
+                    onChange={handleNewSaleChange}
+                    className="w-full p-1 border border-gray-300 rounded-lg"
+                  />
+                </td>
+                <td className="border px-4 py-2">
+                  <input
+                    type="text"
+                    name="DESIGNATION"
+                    value={newSale["DESIGNATION"]}
+                    onChange={handleNewSaleChange}
+                    className="w-full p-1 border border-gray-300 rounded-lg"
+                  />
+                </td>
+                <td className="border px-4 py-2">
+                  <input
+                    type="text"
+                    name="TAUX TVA"
+                    value={newSale["TAUX TVA"]}
+                    onChange={handleNewSaleChange}
+                    className="w-full p-1 border border-gray-300 rounded-lg"
+                  />
+                </td>
+                <td className="border px-4 py-2">
+                  <input
+                    type="text"
+                    name="COMISSION SOLO"
+                    value={newSale["COMISSION SOLO"]}
+                    onChange={handleNewSaleChange}
+                    className="w-full p-1 border border-gray-300 rounded-lg"
+                  />
+                </td>
+                <td className="border px-4 py-2">
+                  <input
+                    type="text"
+                    name="MONTANT TTC"
+                    value={newSale["MONTANT TTC"]}
+                    onChange={handleNewSaleChange}
+                    className="w-full p-1 border border-gray-300 rounded-lg"
+                  />
+                </td>
+                <td className="border px-4 py-2">
+                  <input
+                    type="text"
+                    name="MONTANT HT"
+                    value={newSale["MONTANT HT"]}
+                    onChange={handleNewSaleChange}
+                    className="w-full p-1 border border-gray-300 rounded-lg"
+                  />
+                </td>
+                <td className="border px-4 py-2">
+                  <input
+                    type="text"
+                    name="MONTANT ANNULE"
+                    value={newSale["MONTANT ANNULE"]}
+                    onChange={handleNewSaleChange}
+                    className="w-full p-1 border border-gray-300 rounded-lg"
+                  />
+                </td>
+                <td className="border px-4 py-2">
+                  <input
+                    type="text"
+                    name="CA MENSUEL"
+                    value={newSale["CA MENSUEL"]}
+                    onChange={handleNewSaleChange}
+                    className="w-full p-1 border border-gray-300 rounded-lg"
+                  />
+                </td>
+                <td className="border px-4 py-2">
+                  <select
+                    name="ETAT"
+                    value={newSale["ETAT"]}
+                    onChange={handleNewSaleChange}
+                    className="w-full p-1 border border-gray-300 rounded-lg"
+                  >
+                    <option value="En attente">En attente</option>
+                    <option value="Confirmé">Confirmé</option>
+                    <option value="Annulé">Annulé</option>
+                  </select>
+                </td>
+              </tr>
+            )}
             {(reversePages ? displayedReversedSales : displayedSales).map((sale, index) => (
               <tr
                 key={index}
