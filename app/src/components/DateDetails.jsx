@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { EditIcon, CloseIcon } from './icons';
-import useClickOutside from '../hooks/useClickOutside'; 
+import useClickOutside from '../hooks/useClickOutside';
 
 const DateDetails = () => {
     const { date } = useParams();
@@ -24,7 +24,8 @@ const DateDetails = () => {
         orderNumber: '',
         workDescription: '',
         status: 'En attente',
-        numeroBC: ''
+        numeroBC: '',
+        saleTime: ''
     };
 
     const [newSale, setNewSale] = useState(defaultNewSale);
@@ -113,7 +114,8 @@ const DateDetails = () => {
         }
     };
 
-    const handleSelectSale = (sale) => {
+    const handleSelectSale = (sale, event) => {
+        event.stopPropagation();
         setNewSale(prev => ({
             ...prev,
             clientName: sale["NOM DU CLIENT"],
@@ -127,8 +129,12 @@ const DateDetails = () => {
     const handleAddSale = async (event) => {
         event.preventDefault();
 
+        const saleDate = new Date(date);
+        const [hours, minutes] = newSale.saleTime.split(':');
+        saleDate.setHours(hours, minutes);
+
         const newSaleEntry = {
-            "DATE DE VENTE": new Date(date).toISOString(),
+            "DATE DE VENTE": saleDate.toISOString(),
             "NOM DU CLIENT": newSale.clientName,
             "TELEPHONE": newSale.phoneNumber,
             "ADRESSE DU CLIENT": newSale.address,
@@ -238,16 +244,16 @@ const DateDetails = () => {
                                 ))}
                                 {emptyRowsCount > 0 && (
                                     <tr>
-                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="time" name="saleTime" /></td>
+                                        <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap"><input className="border p-2 rounded-md w-full" type="time" name="saleTime" value={newSale.saleTime} onChange={handleInputChange} /></td>
                                         <td className="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3 whitespace-nowrap">
-                                            <input 
-                                                className="border p-2 rounded-md w-full" 
-                                                type="text" 
-                                                name="clientName" 
+                                            <input
+                                                className="border p-2 rounded-md w-full"
+                                                type="text"
+                                                name="clientName"
                                                 value={newSale.clientName}
                                                 onChange={handleInputChange}
-                                                onBlur={() => setSearchResults([])} 
-                                                onFocus={() => newSale.clientName.length > 2 && setSearchResults(searchResults)} 
+                                                onBlur={() => setSearchResults([])}
+                                                onFocus={() => newSale.clientName.length > 2 && setSearchResults(searchResults)}
                                                 required
                                             />
                                             {isSearching && <div>Searching...</div>}
@@ -256,7 +262,7 @@ const DateDetails = () => {
                                                     {searchResults.map((sale, index) => (
                                                         <li key={index}
                                                             className="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200"
-                                                            onMouseDown={() => handleSelectSale(sale)} 
+                                                            onMouseDown={(event) => handleSelectSale(sale, event)}
                                                         >
                                                             {sale["NOM DU CLIENT"]} - {sale["TELEPHONE"]}
                                                         </li>

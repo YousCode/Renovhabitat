@@ -30,7 +30,7 @@ i18n
     ns: ["translations"],
     defaultNS: "translations",
     parseMissingKeyHandler: (key) => {
-      console.log(`translation missing for "${key}"`);
+      // console.log(`translation missing for "${key}"`);
       return key;
     },
   });
