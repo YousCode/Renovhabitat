@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useHistory } from "react-router-dom";
 
 const normalizeString = (str) => {
@@ -20,6 +20,7 @@ const AllSales = () => {
   const [reversePages, setReversePages] = useState(false);
   const [newSale, setNewSale] = useState(null);
   const history = useHistory();
+  const tableRef = useRef(null);
 
   useEffect(() => {
     const fetchSales = async () => {
@@ -208,29 +209,63 @@ const AllSales = () => {
         )}
       </div>
       <div className="w-full overflow-x-auto">
-        <table className="min-w-full bg-white text-gray-800">
+        <table ref={tableRef} className="min-w-full bg-white text-gray-800">
           <thead className="bg-gray-700 text-white">
             <tr>
-              <th className="w-1/12 px-4 py-2 cursor-pointer" onClick={handleSortDate}>
+              <th className="relative w-1/12 px-4 py-2 cursor-pointer" onClick={handleSortDate}>
                 Date de Vente {sortOrder === "asc" ? "↑" : "↓"}
               </th>
-              <th className="w-1/12 px-4 py-2">Civilité</th>
-              <th className="w-1/12 px-4 py-2">Nom du Client</th>
-              <th className="w-1/12 px-4 py-2">Prénom</th>
-              <th className="w-1/12 px-4 py-2">Numéro BC</th>
-              <th className="w-2/12 px-4 py-2">Adresse du Client</th>
-              <th className="w-1/12 px-4 py-2">Ville</th>
-              <th className="w-1/12 px-4 py-2">Code Postal</th>
-              <th className="w-1/12 px-4 py-2">Téléphone</th>
-              <th className="w-1/12 px-4 py-2">Vendeur</th>
-              <th className="w-1/12 px-4 py-2">Désignation</th>
-              <th className="w-1/12 px-4 py-2">Taux TVA</th>
-              <th className="w-1/12 px-4 py-2">Commission Solo</th>
-              <th className="w-1/12 px-4 py-2">Montant TTC</th>
-              <th className="w-1/12 px-4 py-2">Montant HT</th>
-              <th className="w-1/12 px-4 py-2">Montant Annulé</th>
-              <th className="w-1/12 px-4 py-2">CA Mensuel</th>
-              <th className="w-1/12 px-4 py-2">État</th>
+              <th className="relative w-1/12 px-4 py-2">
+                Civilité
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Nom du Client
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Prénom
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Numéro BC
+              </th>
+              <th className="relative w-2/12 px-1 py-2">
+                Adresse du Client
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Ville
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Code Postal
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Téléphone
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Vendeur
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Désignation
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Taux TVA
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Commission Solo
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Montant TTC
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Montant HT
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Montant Annulé
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                CA Mensuel
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                État
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -281,7 +316,7 @@ const AllSales = () => {
                     className="w-full p-1 border border-gray-300 rounded-lg"
                   />
                 </td>
-                <td className="border px-4 py-2">
+                <td className="border px-1 py-2">
                   <input
                     type="text"
                     name="ADRESSE DU CLIENT"
@@ -414,22 +449,20 @@ const AllSales = () => {
                     : "bg-white"
                 }`}
               >
-                <td className="border px-4 py-2">
-                  {new Date(sale["DATE DE VENTE"]).toLocaleDateString()}
-                </td>
+                <td className="border px-4 py-2">{new Date(sale["DATE DE VENTE"]).toLocaleDateString()}</td>
                 <td className="border px-4 py-2">{sale.CIVILITE}</td>
                 <td className="border px-4 py-2">{sale["NOM DU CLIENT"]}</td>
                 <td className="border px-4 py-2">{sale.prenom}</td>
                 <td className="border px-4 py-2">{sale["NUMERO BC"]}</td>
-                <td className="border px-4 py-2">{sale["ADRESSE DU CLIENT"]}</td>
+                <td className="border px-1 py-2 ">{sale["ADRESSE DU CLIENT"]}</td>
                 <td className="border px-4 py-2">{sale.VILLE}</td>
                 <td className="border px-4 py-2">{sale.CP}</td>
-                <td className="border px-4 py-2">{sale.TELEPHONE}</td>
+                <td className="border px-4 py-2 ">{sale.TELEPHONE}</td>
                 <td className="border px-4 py-2">{sale.VENDEUR}</td>
                 <td className="border px-4 py-2">{sale.DESIGNATION}</td>
                 <td className="border px-4 py-2">{sale["TAUX TVA"]} €</td>
                 <td className="border px-4 py-2">{sale["COMISSION SOLO"]} €</td>
-                <td className="border px-4 py-2">{sale["MONTANT TTC "]} €</td>
+                <td className="border px-4 py-2">{sale["MONTANT TTC"]} €</td>
                 <td className="border px-4 py-2">{parseFloat(sale["MONTANT HT"]).toFixed(2)} €</td>
                 <td className="border px-4 py-2">{sale["MONTANT ANNULE"]} €</td>
                 <td className="border px-4 py-2">{sale["CA MENSUEL"]}</td>
@@ -472,6 +505,12 @@ const AllSales = () => {
         }
         .animate-blink {
           animation: blink 1s infinite;
+        }
+        th, td {
+          white-space: nowrap;
+        }
+        .container {
+          width: 100%;
         }
       `}</style>
     </div>
