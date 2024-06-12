@@ -3,7 +3,10 @@ import { useHistory } from "react-router-dom";
 
 const normalizeString = (str) => {
   return str
-    ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+    ? str
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
     : "";
 };
 
@@ -84,23 +87,23 @@ const AllSales = () => {
   const handleAddNewSale = () => {
     setNewSale({
       "DATE DE VENTE": "",
-      "CIVILITE": "",
+      CIVILITE: "",
       "NOM DU CLIENT": "",
-      "prenom": "",
+      prenom: "",
       "NUMERO BC": "",
       "ADRESSE DU CLIENT": "",
-      "VILLE": "",
-      "CP": "",
-      "TELEPHONE": "",
-      "VENDEUR": "",
-      "DESIGNATION": "",
+      VILLE: "",
+      CP: "",
+      TELEPHONE: "",
+      VENDEUR: "",
+      DESIGNATION: "",
       "TAUX TVA": "",
       "COMISSION SOLO": "",
       "MONTANT TTC": "",
       "MONTANT HT": "",
       "MONTANT ANNULE": "",
       "CA MENSUEL": "",
-      "ETAT": "En attente"
+      ETAT: "En attente",
     });
   };
 
@@ -145,10 +148,20 @@ const AllSales = () => {
     currentPage * ITEMS_PER_PAGE
   );
 
-  const actualCurrentPage = reversePages ? totalPages - currentPage + 1 : currentPage;
+  const actualCurrentPage = reversePages
+    ? totalPages - currentPage + 1
+    : currentPage;
 
   if (loading) return <p className="text-center text-gray-700">Loading...</p>;
   if (error) return <p className="text-center text-red-500">{error}</p>;
+
+  const formatPhoneNumber = (phoneNumber) => {
+    if (!phoneNumber) return "";
+    const maxLength = 14;
+    return phoneNumber.length > maxLength
+      ? phoneNumber.slice(0, maxLength) + "\n" + phoneNumber.slice(maxLength)
+      : phoneNumber;
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-800 p-4">
@@ -211,7 +224,10 @@ const AllSales = () => {
         <table className="min-w-full bg-white text-gray-800">
           <thead className="bg-gray-700 text-white">
             <tr>
-              <th className="w-1/12 px-4 py-2 cursor-pointer" onClick={handleSortDate}>
+              <th
+                className="w-1/12 px-4 py-2 cursor-pointer"
+                onClick={handleSortDate}
+              >
                 Date de Vente {sortOrder === "asc" ? "↑" : "↓"}
               </th>
               <th className="w-1/12 px-4 py-2">Civilité</th>
@@ -403,39 +419,49 @@ const AllSales = () => {
                 </td>
               </tr>
             )}
-            {(reversePages ? displayedReversedSales : displayedSales).map((sale, index) => (
-              <tr
-                key={index}
-                className={`${
-                  normalizeString(sale.ETAT) === "annule"
-                    ? "bg-red-200 animate-blink"
-                    : index % 2 === 0
-                    ? "bg-gray-100"
-                    : "bg-white"
-                }`}
-              >
-                <td className="border px-4 py-2">
-                  {new Date(sale["DATE DE VENTE"]).toLocaleDateString()}
-                </td>
-                <td className="border px-4 py-2">{sale.CIVILITE}</td>
-                <td className="border px-4 py-2">{sale["NOM DU CLIENT"]}</td>
-                <td className="border px-4 py-2">{sale.prenom}</td>
-                <td className="border px-4 py-2">{sale["NUMERO BC"]}</td>
-                <td className="border px-4 py-2">{sale["ADRESSE DU CLIENT"]}</td>
-                <td className="border px-4 py-2">{sale.VILLE}</td>
-                <td className="border px-4 py-2">{sale.CP}</td>
-                <td className="border px-4 py-2">{sale.TELEPHONE}</td>
-                <td className="border px-4 py-2">{sale.VENDEUR}</td>
-                <td className="border px-4 py-2">{sale.DESIGNATION}</td>
-                <td className="border px-4 py-2">{sale["TAUX TVA"]} €</td>
-                <td className="border px-4 py-2">{sale["COMISSION SOLO"]} €</td>
-                <td className="border px-4 py-2">{sale["MONTANT TTC "]} €</td>
-                <td className="border px-4 py-2">{parseFloat(sale["MONTANT HT"]).toFixed(2)} €</td>
-                <td className="border px-4 py-2">{sale["MONTANT ANNULE"]} €</td>
-                <td className="border px-4 py-2">{sale["CA MENSUEL"]}</td>
-                <td className="border px-4 py-2">{sale.ETAT}</td>
-              </tr>
-            ))}
+            {(reversePages ? displayedReversedSales : displayedSales).map(
+              (sale, index) => (
+                <tr
+                  key={index}
+                  className={`${
+                    normalizeString(sale.ETAT) === "annule"
+                      ? "bg-red-200 animate-blink"
+                      : index % 2 === 0
+                      ? "bg-gray-100"
+                      : "bg-white"
+                  }`}
+                >
+                  <td className="border px-4 py-2">
+                    {new Date(sale["DATE DE VENTE"]).toLocaleDateString()}
+                  </td>
+                  <td className="border px-4 py-2">{sale.CIVILITE}</td>
+                  <td className="border px-4 py-2">{sale["NOM DU CLIENT"]}</td>
+                  <td className="border px-4 py-2">{sale.prenom}</td>
+                  <td className="border px-4 py-2">{sale["NUMERO BC"]}</td>
+                  <td className="border px-4 py-2">
+                    {sale["ADRESSE DU CLIENT"]}
+                  </td>
+                  <td className="border px-4 py-2">{sale.VILLE}</td>
+                  <td className="border px-4 py-2">{sale.CP}</td>
+                  <td className="border px-4 py-2">{sale.TELEPHONE}</td>
+                  <td className="border px-4 py-2">{sale.VENDEUR}</td>
+                  <td className="border px-4 py-2">{sale.DESIGNATION}</td>
+                  <td className="border px-4 py-2">{sale["TAUX TVA"]} €</td>
+                  <td className="border px-4 py-2">
+                    {sale["COMISSION SOLO"]} €
+                  </td>
+                  <td className="border px-4 py-2">{sale["MONTANT TTC "]} €</td>
+                  <td className="border px-4 py-2">
+                    {parseFloat(sale["MONTANT HT"]).toFixed(2)} €
+                  </td>
+                  <td className="border px-4 py-2">
+                    {sale["MONTANT ANNULE"]} €
+                  </td>
+                  <td className="border px-4 py-2">{sale["CA MENSUEL"]}</td>
+                  <td className="border px-4 py-2">{sale.ETAT}</td>
+                </tr>
+              )
+            )}
           </tbody>
         </table>
       </div>

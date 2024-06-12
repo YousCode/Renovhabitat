@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Doughnut } from "react-chartjs-2";
+import { ClipLoader } from "react-spinners";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,7 +12,7 @@ import {
   ArcElement,
   Colors,
 } from "chart.js";
-import { ClipLoader } from "react-spinners";  // Import the spinner
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 // Enregistrer les composants nécessaires
 ChartJS.register(
@@ -22,28 +23,26 @@ ChartJS.register(
   Tooltip,
   Legend,
   ArcElement,
-  Colors
+  Colors,
+  ChartDataLabels
 );
 
 const StatisticsDashboard = () => {
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [view, setView] = useState('clients');
 
   useEffect(() => {
     const fetchSales = async () => {
       try {
         const response = await fetch("http://localhost:8080/ventes/all");
         if (!response.ok) {
-          throw new Error(`Failed to fetch sales: ${response.statusText}`);
+          throw new Error(`Échec de la récupération des ventes: ${response.statusText}`);
         }
         const data = await response.json();
-        console.log("Fetched sales data:", data.data);
         setSales(data.data);
       } catch (error) {
-        console.error("Error fetching sales:", error);
-        setError(`Error: ${error.message}`);
+        setError(`Erreur: ${error.message}`);
       } finally {
         setLoading(false);
       }
@@ -52,26 +51,38 @@ const StatisticsDashboard = () => {
     fetchSales();
   }, []);
 
-  const topClients = sales.reduce((acc, sale) => {
-    const client = sale["NOM DU CLIENT"];
-    const montantTTC = parseFloat(sale["MONTANT TTC"]);
-    if (client && !isNaN(montantTTC)) {
-      acc[client] = acc[client] ? acc[client] + montantTTC : montantTTC;
+  const normalizeString = (str) => {
+    return str ? str.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+  };
+
+  const groupByKey = (acc, key, montantTTC, montantHT, count) => {
+    if (!acc[key]) {
+      acc[key] = { montantTTC: 0, montantHT: 0, count: 0 };
     }
-    return acc;
-  }, {});
+    acc[key].montantTTC += isNaN(montantTTC) ? 0 : montantTTC;
+    acc[key].montantHT += isNaN(montantHT) ? 0 : montantHT;
+    acc[key].count += isNaN(count) ? 0 : count;
+  };
 
   const bestSellers = sales.reduce((acc, sale) => {
-    const seller = sale["VENDEUR"];
-    const montantTTC = parseFloat(sale["MONTANT TTC"]);
-    if (seller && !isNaN(montantTTC)) {
-      acc[seller] = acc[seller] ? acc[seller] + montantTTC : montantTTC;
+    const sellerField = sale["VENDEUR"];
+    if (sellerField) {
+      const sellers = sellerField.split("/").map(normalizeString);
+      const montantTTC = parseFloat(sale["MONTANT TTC "]);
+      const montantHT = parseFloat(sale["MONTANT HT"]);
+      const shareTTC = montantTTC / sellers.length;
+      const shareHT = montantHT / sellers.length;
+      const shareCount = 1 / sellers.length;
+
+      sellers.forEach((seller) => {
+        if (seller) {
+          groupByKey(acc, seller, shareTTC, shareHT, shareCount);
+        }
+      });
     }
+
     return acc;
   }, {});
-
-  console.log("Top Clients:", topClients);
-  console.log("Best Sellers:", bestSellers);
 
   if (loading) {
     return (
@@ -83,36 +94,30 @@ const StatisticsDashboard = () => {
 
   if (error) return <p className="text-center text-red-500">{error}</p>;
 
-  const topClientsData = {
-    labels: Object.keys(topClients),
-    datasets: [
-      {
-        label: 'Top Clients',
-        data: Object.values(topClients),
-        backgroundColor: Object.keys(topClients).map(
-          (_, index) => `rgba(${index * 30 % 255}, ${index * 60 % 255}, ${index * 90 % 255}, 0.6)`
-        ),
-        borderColor: Object.keys(topClients).map(
-          (_, index) => `rgba(${index * 30 % 255}, ${index * 60 % 255}, ${index * 90 % 255}, 1)`
-        ),
-        borderWidth: 1
-      }
-    ]
-  };
+  const totalSales = Object.values(bestSellers).reduce((acc, { montantTTC }) => acc + montantTTC, 0);
+
+  const sortedSellers = Object.entries(bestSellers).sort((a, b) => b[1].montantTTC - a[1].montantTTC);
 
   const bestSellersData = {
-    labels: Object.keys(bestSellers),
+    labels: sortedSellers.map(([seller]) => seller),
     datasets: [
       {
         label: 'Meilleurs Vendeurs',
-        data: Object.values(bestSellers),
-        backgroundColor: Object.keys(bestSellers).map(
-          (_, index) => `rgba(${index * 30 % 255}, ${index * 60 % 255}, ${index * 90 % 255}, 0.6)`
-        ),
-        borderColor: Object.keys(bestSellers).map(
-          (_, index) => `rgba(${index * 30 % 255}, ${index * 60 % 255}, ${index * 90 % 255}, 1)`
-        ),
+        data: sortedSellers.map(([, { montantTTC }]) => montantTTC),
+        backgroundColor: [
+          '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+          '#F77825', '#9966FF', '#FF9F40', '#B21FDE',
+          '#2FDE00', '#00A6B4', '#6800B4', '#4BC0C0',
+          '#F77825', '#9966FF', '#FF9F40', '#B21FDE',
+        ],
+        borderColor: [
+          '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+          '#F77825', '#9966FF', '#FF9F40', '#B21FDE',
+          '#2FDE00', '#00A6B4', '#6800B4', '#4BC0C0',
+          '#F77825', '#9966FF', '#FF9F40', '#B21FDE',
+        ],
         borderWidth: 1,
+        hoverOffset: 10
       }
     ]
   };
@@ -122,36 +127,71 @@ const StatisticsDashboard = () => {
     plugins: {
       legend: {
         position: 'top',
+        labels: {
+          font: {
+            size: 14
+          },
+          color: '#ffffff',
+          generateLabels: function (chart) {
+            const data = chart.data;
+            if (data.labels.length && data.datasets.length) {
+              return data.labels.map((label, i) => {
+                const dataset = data.datasets[0];
+                const value = dataset.data[i];
+                return {
+                  text: `${label}: ${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(value)}`,
+                  fillStyle: dataset.backgroundColor[i],
+                  strokeStyle: dataset.borderColor[i],
+                  lineWidth: dataset.borderWidth,
+                  hidden: isNaN(dataset.data[i]),
+                  index: i
+                };
+              });
+            }
+            return [];
+          }
+        }
       },
       title: {
         display: true,
         text: 'Statistiques des ventes',
+        color: '#ffffff'
       },
+      tooltip: {
+        callbacks: {
+          label: function (tooltipItem) {
+            const seller = tooltipItem.label;
+            const montantHT = bestSellers[seller].montantHT;
+            return `Montant HT: ${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(montantHT)}`;
+          }
+        }
+      },
+      datalabels: {
+        display: false
+      }
     },
+    cutout: '70%',
     animation: {
+      animateScale: true,
+      animateRotate: true,
       duration: 2000,
-      easing: 'easeInOutBounce',
-    },
+      easing: 'easeInOutBounce'
+    }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-gray-800 p-4">
-      <div className="flex mb-4">
-        <button onClick={() => setView('clients')} className={`px-4 py-2 mr-2 ${view === 'clients' ? 'bg-blue-600' : 'bg-gray-700'} text-white rounded-lg`}>Clients</button>
-        <button onClick={() => setView('vendeurs')} className={`px-4 py-2 ${view === 'vendeurs' ? 'bg-blue-600' : 'bg-gray-700'} text-white rounded-lg`}>Vendeurs</button>
+    <div className="min-h-screen flex flex-col items-center bg-gray-900 p-4">
+      <div className="w-full mb-8 max-w-2xl">
+        <h2 className="text-white text-3xl mb-4 text-center">Meilleurs Vendeurs</h2>
+        <div className="relative bg-gray-800 p-4 rounded-lg shadow-lg">
+          <Doughnut data={bestSellersData} options={options} className="h-96 w-96 mx-auto" />
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="bg-green-500 text-white rounded-full p-4 shadow-lg flex items-center justify-center">
+              <span className="text-xl font-bold">{new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(totalSales)}</span>
+            </div>
+          </div>
+        </div>
       </div>
-      {view === 'clients' && (
-        <div className="w-full mb-8">
-          <h2 className="text-white text-2xl mb-4">Top Clients</h2>
-          <Doughnut data={topClientsData} options={options} />
-        </div>
-      )}
-      {view === 'vendeurs' && (
-        <div className="w-full mb-8">
-          <h2 className="text-white text-2xl mb-4">Meilleurs Vendeurs</h2>
-          <Doughnut data={bestSellersData} options={options} />
-        </div>
-      )}
     </div>
   );
 };
