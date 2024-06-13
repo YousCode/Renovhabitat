@@ -117,7 +117,7 @@ export const WeeklyCalendar = () => {
           center: "title",
           right: "dayGridMonth", // Only month view
         }}
-        hiddenDays={[]} // Show all days of the week
+        hiddenDays={[0]} // Show all days of the week
         dateClick={handleDateClick}
         events={events}
         locale={frLocale}
