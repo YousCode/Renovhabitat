@@ -1,12 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useHistory } from "react-router-dom";
 
 const normalizeString = (str) => {
   return str
-    ? str
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
+    ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
     : "";
 };
 
@@ -23,6 +20,7 @@ const AllSales = () => {
   const [reversePages, setReversePages] = useState(false);
   const [newSale, setNewSale] = useState(null);
   const history = useHistory();
+  const tableRef = useRef(null);
 
   useEffect(() => {
     const fetchSales = async () => {
@@ -87,23 +85,23 @@ const AllSales = () => {
   const handleAddNewSale = () => {
     setNewSale({
       "DATE DE VENTE": "",
-      CIVILITE: "",
+      "CIVILITE": "",
       "NOM DU CLIENT": "",
-      prenom: "",
+      "prenom": "",
       "NUMERO BC": "",
       "ADRESSE DU CLIENT": "",
-      VILLE: "",
-      CP: "",
-      TELEPHONE: "",
-      VENDEUR: "",
-      DESIGNATION: "",
+      "VILLE": "",
+      "CP": "",
+      "TELEPHONE": "",
+      "VENDEUR": "",
+      "DESIGNATION": "",
       "TAUX TVA": "",
       "COMISSION SOLO": "",
       "MONTANT TTC": "",
       "MONTANT HT": "",
       "MONTANT ANNULE": "",
       "CA MENSUEL": "",
-      ETAT: "En attente",
+      "ETAT": "En attente"
     });
   };
 
@@ -148,20 +146,10 @@ const AllSales = () => {
     currentPage * ITEMS_PER_PAGE
   );
 
-  const actualCurrentPage = reversePages
-    ? totalPages - currentPage + 1
-    : currentPage;
+  const actualCurrentPage = reversePages ? totalPages - currentPage + 1 : currentPage;
 
   if (loading) return <p className="text-center text-gray-700">Loading...</p>;
   if (error) return <p className="text-center text-red-500">{error}</p>;
-
-  const formatPhoneNumber = (phoneNumber) => {
-    if (!phoneNumber) return "";
-    const maxLength = 14;
-    return phoneNumber.length > maxLength
-      ? phoneNumber.slice(0, maxLength) + "\n" + phoneNumber.slice(maxLength)
-      : phoneNumber;
-  };
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-800 p-4">
@@ -221,32 +209,63 @@ const AllSales = () => {
         )}
       </div>
       <div className="w-full overflow-x-auto">
-        <table className="min-w-full bg-white text-gray-800">
+        <table ref={tableRef} className="min-w-full bg-white text-gray-800">
           <thead className="bg-gray-700 text-white">
             <tr>
-              <th
-                className="w-1/12 px-4 py-2 cursor-pointer"
-                onClick={handleSortDate}
-              >
+              <th className="relative w-1/12 px-4 py-2 cursor-pointer" onClick={handleSortDate}>
                 Date de Vente {sortOrder === "asc" ? "↑" : "↓"}
               </th>
-              <th className="w-1/12 px-4 py-2">Civilité</th>
-              <th className="w-1/12 px-4 py-2">Nom du Client</th>
-              <th className="w-1/12 px-4 py-2">Prénom</th>
-              <th className="w-1/12 px-4 py-2">Numéro BC</th>
-              <th className="w-2/12 px-4 py-2">Adresse du Client</th>
-              <th className="w-1/12 px-4 py-2">Ville</th>
-              <th className="w-1/12 px-4 py-2">Code Postal</th>
-              <th className="w-1/12 px-4 py-2">Téléphone</th>
-              <th className="w-1/12 px-4 py-2">Vendeur</th>
-              <th className="w-1/12 px-4 py-2">Désignation</th>
-              <th className="w-1/12 px-4 py-2">Taux TVA</th>
-              <th className="w-1/12 px-4 py-2">Commission Solo</th>
-              <th className="w-1/12 px-4 py-2">Montant TTC</th>
-              <th className="w-1/12 px-4 py-2">Montant HT</th>
-              <th className="w-1/12 px-4 py-2">Montant Annulé</th>
-              <th className="w-1/12 px-4 py-2">CA Mensuel</th>
-              <th className="w-1/12 px-4 py-2">État</th>
+              <th className="relative w-1/12 px-4 py-2">
+                Civilité
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Nom du Client
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Prénom
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Numéro BC
+              </th>
+              <th className="relative w-2/12 px-1 py-2">
+                Adresse du Client
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Ville
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Code Postal
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Téléphone
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Vendeur
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Désignation
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Taux TVA
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Commission Solo
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Montant TTC
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Montant HT
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                Montant Annulé
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                CA Mensuel
+              </th>
+              <th className="relative w-1/12 px-4 py-2">
+                État
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -297,7 +316,7 @@ const AllSales = () => {
                     className="w-full p-1 border border-gray-300 rounded-lg"
                   />
                 </td>
-                <td className="border px-4 py-2">
+                <td className="border px-1 py-2">
                   <input
                     type="text"
                     name="ADRESSE DU CLIENT"
@@ -419,49 +438,37 @@ const AllSales = () => {
                 </td>
               </tr>
             )}
-            {(reversePages ? displayedReversedSales : displayedSales).map(
-              (sale, index) => (
-                <tr
-                  key={index}
-                  className={`${
-                    normalizeString(sale.ETAT) === "annule"
-                      ? "bg-red-200 animate-blink"
-                      : index % 2 === 0
-                      ? "bg-gray-100"
-                      : "bg-white"
-                  }`}
-                >
-                  <td className="border px-4 py-2">
-                    {new Date(sale["DATE DE VENTE"]).toLocaleDateString()}
-                  </td>
-                  <td className="border px-4 py-2">{sale.CIVILITE}</td>
-                  <td className="border px-4 py-2">{sale["NOM DU CLIENT"]}</td>
-                  <td className="border px-4 py-2">{sale.prenom}</td>
-                  <td className="border px-4 py-2">{sale["NUMERO BC"]}</td>
-                  <td className="border px-4 py-2">
-                    {sale["ADRESSE DU CLIENT"]}
-                  </td>
-                  <td className="border px-4 py-2">{sale.VILLE}</td>
-                  <td className="border px-4 py-2">{sale.CP}</td>
-                  <td className="border px-4 py-2">{sale.TELEPHONE}</td>
-                  <td className="border px-4 py-2">{sale.VENDEUR}</td>
-                  <td className="border px-4 py-2">{sale.DESIGNATION}</td>
-                  <td className="border px-4 py-2">{sale["TAUX TVA"]} €</td>
-                  <td className="border px-4 py-2">
-                    {sale["COMISSION SOLO"]} €
-                  </td>
-                  <td className="border px-4 py-2">{sale["MONTANT TTC "]} €</td>
-                  <td className="border px-4 py-2">
-                    {parseFloat(sale["MONTANT HT"]).toFixed(2)} €
-                  </td>
-                  <td className="border px-4 py-2">
-                    {sale["MONTANT ANNULE"]} €
-                  </td>
-                  <td className="border px-4 py-2">{sale["CA MENSUEL"]}</td>
-                  <td className="border px-4 py-2">{sale.ETAT}</td>
-                </tr>
-              )
-            )}
+            {(reversePages ? displayedReversedSales : displayedSales).map((sale, index) => (
+              <tr
+                key={index}
+                className={`${
+                  normalizeString(sale.ETAT) === "annule"
+                    ? "bg-red-200 animate-blink"
+                    : index % 2 === 0
+                    ? "bg-gray-100"
+                    : "bg-white"
+                }`}
+              >
+                <td className="border px-4 py-2">{new Date(sale["DATE DE VENTE"]).toLocaleDateString()}</td>
+                <td className="border px-4 py-2">{sale.CIVILITE}</td>
+                <td className="border px-4 py-2">{sale["NOM DU CLIENT"]}</td>
+                <td className="border px-4 py-2">{sale.prenom}</td>
+                <td className="border px-4 py-2">{sale["NUMERO BC"]}</td>
+                <td className="border px-1 py-2 ">{sale["ADRESSE DU CLIENT"]}</td>
+                <td className="border px-4 py-2">{sale.VILLE}</td>
+                <td className="border px-4 py-2">{sale.CP}</td>
+                <td className="border px-4 py-2 ">{sale.TELEPHONE}</td>
+                <td className="border px-4 py-2">{sale.VENDEUR}</td>
+                <td className="border px-4 py-2">{sale.DESIGNATION}</td>
+                <td className="border px-4 py-2">{sale["TAUX TVA"]} €</td>
+                <td className="border px-4 py-2">{sale["COMISSION SOLO"]} €</td>
+                <td className="border px-4 py-2">{sale["MONTANT TTC"]} €</td>
+                <td className="border px-4 py-2">{parseFloat(sale["MONTANT HT"]).toFixed(2)} €</td>
+                <td className="border px-4 py-2">{sale["MONTANT ANNULE"]} €</td>
+                <td className="border px-4 py-2">{sale["CA MENSUEL"]}</td>
+                <td className="border px-4 py-2">{sale.ETAT}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -498,6 +505,12 @@ const AllSales = () => {
         }
         .animate-blink {
           animation: blink 1s infinite;
+        }
+        th, td {
+          white-space: nowrap;
+        }
+        .container {
+          width: 100%;
         }
       `}</style>
     </div>

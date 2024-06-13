@@ -10,7 +10,7 @@ const normalizePhoneNumber = (phoneNumber) => phoneNumber.replace(/\s+/g, "");
 // Ajouter une nouvelle vente avec validation
 router.post("/", [
   body('NOM DU CLIENT').not().isEmpty().trim().escape(),
-  body('NUMERO BC').isNumeric().isLength({ min: 6, max: 6 }),
+  body('NUMERO BC').isNumeric().isLength({ min: 1, max: 6 }),
   body('DATE DE VENTE').isISO8601(),
   // Ajoutez ici d'autres validations si nécessaire
 ], async (req, res) => {
