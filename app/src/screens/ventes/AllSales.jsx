@@ -9,6 +9,24 @@ const normalizeString = (str) => {
 
 const ITEMS_PER_PAGE = 200;
 
+const formatDate = (dateStr) => {
+  if (!dateStr) return "Invalid date";
+  
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) {
+    // Handle the "DD/MM/YYYY HH:MM:SS" format
+    const parts = dateStr.split(" ");
+    if (parts.length > 0) {
+      const [day, month, year] = parts[0].split("/");
+      if (day && month && year) {
+        return `${day}/${month}/${year}`;
+      }
+    }
+    return "Invalid date";
+  }
+  return date.toLocaleDateString("fr-FR");
+};
+
 const AllSales = () => {
   const [sales, setSales] = useState([]);
   const [filteredSales, setFilteredSales] = useState([]);
@@ -28,19 +46,19 @@ const AllSales = () => {
         const response = await fetch("http://localhost:8080/ventes/all");
         if (!response.ok) {
           throw new Error(`Failed to fetch sales: ${response.statusText}`);
-        }
-        const data = await response.json();
-        setSales(data.data);
-        setFilteredSales(data.data);
-        sortSales(data.data, sortOrder);
-      } catch (error) {
-        console.error("Error fetching sales:", error);
-        setError(`Error: ${error.message}`);
-      } finally {
-        setLoading(false);
-      }
+          }
+          const data = await response.json();
+          console.log(data);
+          setSales(data.data);
+          setFilteredSales(data.data);
+          sortSales(data.data, sortOrder);
+          } catch (error) {
+            console.error("Error fetching sales:", error);
+            setError(`Error: ${error.message}`);
+            } finally {
+              setLoading(false);
+              }
     };
-
     fetchSales();
   }, []);
 
@@ -449,7 +467,7 @@ const AllSales = () => {
                     : "bg-white"
                 }`}
               >
-                <td className="border px-4 py-2">{new Date(sale["DATE DE VENTE"]).toLocaleDateString()}</td>
+                <td className="border px-4 py-2">{formatDate(sale["DATE DE VENTE"])}</td>
                 <td className="border px-4 py-2">{sale.CIVILITE}</td>
                 <td className="border px-4 py-2">{sale["NOM DU CLIENT"]}</td>
                 <td className="border px-4 py-2">{sale.prenom}</td>

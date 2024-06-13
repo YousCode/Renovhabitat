@@ -191,6 +191,12 @@ const DateDetails = () => {
 
     return (
         <div ref={formRef} className="p-6">
+            <button
+                onClick={() => history.goBack()}
+                className="px-4 py-2 bg-gray-700 text-white rounded-lg mb-4"
+            >
+                Retour
+            </button>
             <h2 className="text-2xl text-white font-bold mb-4">{formattedDate}</h2>
             {loading ? (
                 <p>Loading...</p>

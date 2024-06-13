@@ -41,7 +41,7 @@ router.get("/all", async (req, res) => {
     res.status(500).json({ success: false, message: "Error fetching sales", error });
   }
 });
-
+929664811
 // Rechercher des ventes par nom du client ou numéro BC ou numéro de téléphone (avec ou sans espaces)
 router.get("/search", async (req, res) => {
   const { searchTerm } = req.query;
