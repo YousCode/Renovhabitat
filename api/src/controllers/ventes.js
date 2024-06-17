@@ -11,7 +11,7 @@ const normalizePhoneNumber = (phoneNumber) => phoneNumber.replace(/\s+/g, "");
 router.post("/", [
   body('NOM DU CLIENT').not().isEmpty().trim().escape(),
   body('NUMERO BC').isNumeric().isLength({ min: 1, max: 6 }),
-  body('DATE DE VENTE').isISO8601(),
+  body('DATE DE VENTE').isISO8601().toDate(),
   // Ajoutez ici d'autres validations si nécessaire
 ], async (req, res) => {
   const errors = validationResult(req);
@@ -28,17 +28,18 @@ router.post("/", [
   }
 });
 
+// Route GET pour récupérer toutes les ventes
 router.get("/all", async (req, res) => {
   try {
-    const ventes = await Vente.find().exec();  // Retire la limitation et la pagination
-    const count = await Vente.countDocuments();  // Compte total des documents
+    const ventes = await Vente.find().exec();
+    const count = await Vente.countDocuments();
     res.status(200).json({
       success: true,
       data: ventes,
       totalItems: count
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Error fetching sales", error });
+    res.status(500).json({ success: false, message: "Erreur lors de la récupération des ventes", error: error.message });
   }
 });
 929664811
@@ -52,7 +53,7 @@ router.get("/search", async (req, res) => {
       $or: [
         { "NOM DU CLIENT": { $regex: searchTerm, $options: "i" } },
         { "TELEPHONE": { $regex: normalizedSearchTerm, $options: "i" } },
-        // { "NUMERO BC": searchTerm }
+        { "NUMERO BC": searchTerm }
       ]
     });
     if (ventes.length === 0) {
@@ -60,10 +61,11 @@ router.get("/search", async (req, res) => {
     }
     res.status(200).json({ success: true, data: ventes });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Erreur lors de la recherche des ventes", error });
+    res.status(500).json({ success: false, message: "Erreur lors de la recherche des ventes", error: error.message });
   }
 });
 
+// Route GET pour récupérer une vente par ID avec authentification
 router.get("/:id", passport.authenticate("user", { session: false }),  async (req, res) => {
   try {
     const vente = await Vente.findById(req.params.id);
@@ -76,7 +78,7 @@ router.get("/:id", passport.authenticate("user", { session: false }),  async (re
   }
 });
 
-// Mise à jour d'une vente
+// Mise à jour d'une vente avec authentification
 router.put("/:id", passport.authenticate("user", { session: false }), async (req, res) => {
   try {
     const vente = await Vente.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -89,7 +91,7 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
   }
 });
 
-// Supprimer une vente
+// Supprimer une vente avec authentification
 router.delete("/:id", passport.authenticate("user", { session: false }), async (req, res) => {
   try {
     const vente = await Vente.findByIdAndDelete(req.params.id);
