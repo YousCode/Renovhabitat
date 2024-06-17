@@ -4,13 +4,12 @@ from datetime import datetime
 def parse_dates(val):
     if pd.isnull(val) or val.strip() == "":
         return None
-    for fmt in ("%d/%m/%Y", "%m/%d/%Y"):
-        try:
-            return datetime.strptime(val, fmt).strftime('%d/%m/%Y')
-        except ValueError:
-            continue
-    print(f"Unable to parse date: {val}")
-    return None
+    try:
+        # Tenter de parser le format YYYY-mm-dd HH:MM:SS
+        return datetime.strptime(val, "%Y-%m-%d %H:%M:%S").strftime('%Y/%m/%d')
+    except ValueError:
+        print(f"Unable to parse date: {val}")
+        return None
 
 try:
     # Chemin d'accès au fichier Excel

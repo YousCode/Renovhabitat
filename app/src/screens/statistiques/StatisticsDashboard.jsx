@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Doughnut } from "react-chartjs-2";
 import { ClipLoader } from "react-spinners";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,7 +16,6 @@ import {
 } from "chart.js";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-// Enregistrer les composants nécessaires
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -31,6 +32,8 @@ const StatisticsDashboard = () => {
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [filter, setFilter] = useState('mois'); // Définir le filtre par défaut sur 'mois'
+  const [selectedDate, setSelectedDate] = useState(new Date()); // Date sélectionnée
 
   useEffect(() => {
     const fetchSales = async () => {
@@ -64,7 +67,41 @@ const StatisticsDashboard = () => {
     acc[key].count += isNaN(count) ? 0 : count;
   };
 
-  const bestSellers = sales.reduce((acc, sale) => {
+  const filterSalesByDate = (sales, filter, selectedDate) => {
+    const now = new Date(selectedDate);
+    return sales.filter(sale => {
+      const saleDate = new Date(sale["DATE DE VENTE"]);
+      switch (filter) {
+        case 'jour':
+          return saleDate >= new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        case 'semaine':
+          const weekAgo = new Date(now);
+          weekAgo.setDate(now.getDate() - 7);
+          return saleDate >= weekAgo;
+        case 'mois':
+          const monthAgo = new Date(now);
+          monthAgo.setMonth(now.getMonth() - 1);
+          return saleDate >= monthAgo;
+        case '3mois':
+          const threeMonthsAgo = new Date(now);
+          threeMonthsAgo.setMonth(now.getMonth() - 3);
+          return saleDate >= threeMonthsAgo;
+        case 'annee':
+          const yearAgo = new Date(now);
+          yearAgo.setFullYear(now.getFullYear() - 1);
+          return saleDate >= yearAgo;
+        default:
+          return true;
+      }
+    });
+  };
+
+  const filteredSales = filterSalesByDate(sales, filter, selectedDate);
+
+  const bestSellers = filteredSales.reduce((acc, sale) => {
+    if (normalizeString(sale["ETAT"]) === "annule") {
+      return acc; // Exclure les ventes annulées
+    }
     const sellerField = sale["VENDEUR"];
     if (sellerField) {
       const sellers = sellerField.split("/").map(normalizeString);
@@ -183,17 +220,37 @@ const StatisticsDashboard = () => {
     <div className="min-h-screen flex flex-col items-center bg-gray-900 p-4">
       <div className="w-full mb-8 max-w-2xl">
         <h2 className="text-white text-3xl mb-4 text-center">Meilleurs Vendeurs</h2>
-        <div className="relative bg-gray-800 p-4 rounded-lg shadow-lg">
-          <Doughnut data={bestSellersData} options={options} className="h-96 w-96 mx-auto" />
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="bg-green-500 text-white rounded-full p-4 shadow-lg flex items-center justify-center">
-              <span className="text-xl font-bold">{new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(totalSales)}</span>
-            </div>
-          </div>
+        <div className="flex justify-center space-x-4 mb-4">
+          {['jour', 'semaine', 'mois', '3mois', 'annee'].map((period) => (
+            <button
+              key={period}
+              onClick={() => setFilter(period)}
+              className={`px-4 py-2 rounded-lg ${filter === period ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-300'}`}
+            >
+              {period.charAt(0).toUpperCase() + period.slice(1)}
+            </button>
+          ))}
         </div>
-      </div>
-    </div>
-  );
-};
-
-export default StatisticsDashboard;
+        <div className="flex justify-center mb-4">
+          <DatePicker
+                        onChange={(date) => setSelectedDate(date)}
+                        dateFormat="dd/MM/yyyy"
+                        className="px-4 py-2 rounded-lg bg-gray-700 text-white"
+                      />
+                    </div>
+                    <div className="relative bg-gray-800 p-4 rounded-lg shadow-lg">
+                      <Doughnut data={bestSellersData} options={options} className="h-96 w-96 mx-auto" />
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="bg-green-500 text-white rounded-full p-4 shadow-lg flex items-center justify-center">
+                          <span className="text-xl font-bold">
+                            {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(totalSales)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            };
+            
+            export default StatisticsDashboard;
