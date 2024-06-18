@@ -14,7 +14,7 @@ import {
   ArcElement,
   Colors,
 } from "chart.js";
-import ChartDataLabels from 'chartjs-plugin-datalabels';
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
 ChartJS.register(
   CategoryScale,
@@ -32,7 +32,7 @@ const StatisticsDashboard = () => {
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState('mois'); // Définir le filtre par défaut sur 'mois'
+  const [filter, setFilter] = useState("mois"); // Définir le filtre par défaut sur 'mois'
   const [selectedDate, setSelectedDate] = useState(new Date()); // Date sélectionnée
 
   useEffect(() => {
@@ -40,7 +40,9 @@ const StatisticsDashboard = () => {
       try {
         const response = await fetch("http://localhost:8080/ventes/all");
         if (!response.ok) {
-          throw new Error(`Échec de la récupération des ventes: ${response.statusText}`);
+          throw new Error(
+            `Échec de la récupération des ventes: ${response.statusText}`
+          );
         }
         const data = await response.json();
         setSales(data.data);
@@ -55,7 +57,13 @@ const StatisticsDashboard = () => {
   }, []);
 
   const normalizeString = (str) => {
-    return str ? str.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+    return str
+      ? str
+          .trim()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+      : "";
   };
 
   const groupByKey = (acc, key, montantTTC, montantHT, count) => {
@@ -69,24 +77,27 @@ const StatisticsDashboard = () => {
 
   const filterSalesByDate = (sales, filter, selectedDate) => {
     const now = new Date(selectedDate);
-    return sales.filter(sale => {
+    return sales.filter((sale) => {
       const saleDate = new Date(sale["DATE DE VENTE"]);
       switch (filter) {
-        case 'jour':
-          return saleDate >= new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        case 'semaine':
+        case "jour":
+          return (
+            saleDate >=
+            new Date(now.getFullYear(), now.getMonth(), now.getDate())
+          );
+        case "semaine":
           const weekAgo = new Date(now);
           weekAgo.setDate(now.getDate() - 7);
           return saleDate >= weekAgo;
-        case 'mois':
+        case "mois":
           const monthAgo = new Date(now);
           monthAgo.setMonth(now.getMonth() - 1);
           return saleDate >= monthAgo;
-        case '3mois':
+        case "3mois":
           const threeMonthsAgo = new Date(now);
           threeMonthsAgo.setMonth(now.getMonth() - 3);
           return saleDate >= threeMonthsAgo;
-        case 'annee':
+        case "annee":
           const yearAgo = new Date(now);
           yearAgo.setFullYear(now.getFullYear() - 1);
           return saleDate >= yearAgo;
@@ -131,126 +142,164 @@ const StatisticsDashboard = () => {
 
   if (error) return <p className="text-center text-red-500">{error}</p>;
 
-  const totalSales = Object.values(bestSellers).reduce((acc, { montantTTC }) => acc + montantTTC, 0);
+  const totalSales = Object.values(bestSellers).reduce(
+    (acc, { montantTTC }) => acc + montantTTC,
+    0
+  );
 
-  const sortedSellers = Object.entries(bestSellers).sort((a, b) => b[1].montantTTC - a[1].montantTTC);
+  const sortedSellers = Object.entries(bestSellers).sort(
+    (a, b) => b[1].montantTTC - a[1].montantTTC
+  );
 
   const bestSellersData = {
     labels: sortedSellers.map(([seller]) => seller),
     datasets: [
       {
-        label: 'Meilleurs Vendeurs',
+        label: "Meilleurs Vendeurs",
         data: sortedSellers.map(([, { montantTTC }]) => montantTTC),
         backgroundColor: [
-          '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-          '#F77825', '#9966FF', '#FF9F40', '#B21FDE',
-          '#2FDE00', '#00A6B4', '#6800B4', '#4BC0C0',
-          '#F77825', '#9966FF', '#FF9F40', '#B21FDE',
+          "#FF6384",
+          "#36A2EB",
+          "#FFCE56",
+          "#4BC0C0",
+          "#F77825",
+          "#9966FF",
+          "#FF9F40",
+          "#B21FDE",
+          "#2FDE00",
+          "#00A6B4",
+          "#6800B4",
+          "#4BC0C0",
+          "#F77825",
+          "#9966FF",
+          "#FF9F40",
+          "#B21FDE",
         ],
         borderColor: [
-          '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-          '#F77825', '#9966FF', '#FF9F40', '#B21FDE',
-          '#2FDE00', '#00A6B4', '#6800B4', '#4BC0C0',
-          '#F77825', '#9966FF', '#FF9F40', '#B21FDE',
+          "#FF6384",
+          "#36A2EB",
+          "#FFCE56",
+          "#4BC0C0",
+          "#F77825",
+          "#9966FF",
+          "#FF9F40",
+          "#B21FDE",
+          "#2FDE00",
+          "#00A6B4",
+          "#6800B4",
+          "#4BC0C0",
+          "#F77825",
+          "#9966FF",
+          "#FF9F40",
+          "#B21FDE",
         ],
         borderWidth: 1,
-        hoverOffset: 10
-      }
-    ]
+        hoverOffset: 10,
+      },
+    ],
   };
 
   const options = {
     responsive: true,
     plugins: {
       legend: {
-        position: 'top',
-        labels: {
-          font: {
-            size: 14
-          },
-          color: '#ffffff',
-          generateLabels: function (chart) {
-            const data = chart.data;
-            if (data.labels.length && data.datasets.length) {
-              return data.labels.map((label, i) => {
-                const dataset = data.datasets[0];
-                const value = dataset.data[i];
-                return {
-                  text: `${label}: ${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(value)}`,
-                  fillStyle: dataset.backgroundColor[i],
-                  strokeStyle: dataset.borderColor[i],
-                  lineWidth: dataset.borderWidth,
-                  hidden: isNaN(dataset.data[i]),
-                  index: i
-                };
-              });
-            }
-            return [];
-          }
-        }
+        display: false, // Masquer la légende du graphique
       },
       title: {
-        display: true,
-        text: 'Statistiques des ventes',
-        color: '#ffffff'
+        display: false, // Masquer le titre intégré dans le graphique
       },
       tooltip: {
         callbacks: {
           label: function (tooltipItem) {
             const seller = tooltipItem.label;
             const montantHT = bestSellers[seller].montantHT;
-            return `Montant HT: ${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(montantHT)}`;
-          }
-        }
+            return `Montant HT: ${new Intl.NumberFormat("fr-FR", {
+              style: "currency",
+              currency: "EUR",
+            }).format(montantHT)}`;
+          },
+        },
       },
       datalabels: {
-        display: false
-      }
+        display: false,
+      },
     },
-    cutout: '70%',
+    cutout: "70%",
     animation: {
       animateScale: true,
       animateRotate: true,
       duration: 2000,
-      easing: 'easeInOutBounce'
-    }
+      easing: "easeInOutBounce",
+    },
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-gray-900 p-4">
-      <div className="w-full mb-8 max-w-2xl">
-        <h2 className="text-white text-3xl mb-4 text-center">Meilleurs Vendeurs</h2>
-        <div className="flex justify-center space-x-4 mb-4">
-          {['jour', 'semaine', 'mois', '3mois', 'annee'].map((period) => (
-            <button
-              key={period}
-              onClick={() => setFilter(period)}
-              className={`px-4 py-2 rounded-lg ${filter === period ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-300'}`}
-            >
+    <div className="min-h-screen flex bg-gray-900 p-4">
+      <div className="w-1/4 flex flex-col items-center space-y-4">
+        <h2 className="text-white text-3xl mb-4">Filtres</h2>
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          className="px-4 py-2 rounded-lg bg-gray-700 text-white mb-4"
+        >
+          {["jour", "semaine", "mois", "3mois", "annee"].map((period) => (
+            <option key={period} value={period}>
               {period.charAt(0).toUpperCase() + period.slice(1)}
-            </button>
+            </option>
           ))}
+        </select>
+        <DatePicker
+          selected={selectedDate}
+          onChange={(date) => setSelectedDate(date)}
+          dateFormat="dd/MM/yyyy"
+          className="px-4 py-2 rounded-lg bg-gray-700 text-white"
+        />
+      </div>
+      <div className="w-3/4 flex bg-gray-800 shadow-lg rounded-lg">
+        <div className="w-1/2 flex flex-col items-start p-4 mr-4">
+          <h2 className="text-white text-3xl mb-4">Meilleurs Vendeurs</h2>
+          <ul className="space-y-2">
+            {sortedSellers.map(([seller, { montantTTC }], index) => (
+              <li key={seller} className="flex items-center space-x-2">
+                <span
+                  className="inline-block w-4 h-4 rounded-full"
+                  style={{
+                    backgroundColor: bestSellersData.datasets[0].backgroundColor[index],
+                  }}
+                ></span>
+                <span className="text-white">{seller}</span>
+                <span className="text-gray-400">
+                  {new Intl.NumberFormat("fr-FR", {
+                    style: "currency",
+                    currency: "EUR",
+                  }).format(montantTTC)}
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
-        <div className="flex justify-center mb-4">
-          <DatePicker
-                        onChange={(date) => setSelectedDate(date)}
-                        dateFormat="dd/MM/yyyy"
-                        className="px-4 py-2 rounded-lg bg-gray-700 text-white"
-                      />
-                    </div>
-                    <div className="relative bg-gray-800 p-4 rounded-lg shadow-lg">
-                      <Doughnut data={bestSellersData} options={options} className="h-96 w-96 mx-auto" />
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="bg-green-500 text-white rounded-full p-4 shadow-lg flex items-center justify-center">
-                          <span className="text-xl font-bold">
-                            {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(totalSales)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            };
-            
-            export default StatisticsDashboard;
+        <div className="w-1/2 relative p-4 flex flex-col items-center">
+          <h2 className="text-white text-3xl mb-4">Statistiques des ventes</h2>
+          <div className="relative w-full h-full flex items-center justify-center">
+            <Doughnut
+              data={bestSellersData}
+              options={options}
+              className="h-full w-full"
+            />
+            <div className="absolute bottom-4 right-4 bg-green-500 text-white rounded-full p-4 shadow-lg flex items-center justify-center">
+              <span className="text-xl font-bold">
+                Total&nbsp;
+                {new Intl.NumberFormat("fr-FR", {
+                  style: "currency",
+                  currency: "EUR",
+                }).format(totalSales)}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default StatisticsDashboard;
