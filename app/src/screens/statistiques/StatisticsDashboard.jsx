@@ -255,8 +255,8 @@ const StatisticsDashboard = () => {
           className="px-4 py-2 rounded-lg bg-gray-700 text-white"
         />
       </div>
-      <div className="w-3/4 flex bg-gray-800 shadow-lg rounded-lg">
-        <div className="w-1/2 flex flex-col items-start p-4 mr-4">
+      <div className="w-3/4 flex space-x-4  bg-gray-800 shadow-lg rounded-lg">
+        <div className="w-1/3 flex flex-col  p-4">
           <h2 className="text-white text-3xl mb-4">Meilleurs Vendeurs</h2>
           <ul className="space-y-2">
             {sortedSellers.map(([seller, { montantTTC }], index) => (
@@ -278,7 +278,7 @@ const StatisticsDashboard = () => {
             ))}
           </ul>
         </div>
-        <div className="w-1/2 relative p-4 flex flex-col items-center">
+        <div className="w-1/3 flex flex-col  p-4 items-center justify-center">
           <h2 className="text-white text-3xl mb-4">Statistiques des ventes</h2>
           <div className="relative w-full h-full flex items-center justify-center">
             <Doughnut
@@ -286,15 +286,18 @@ const StatisticsDashboard = () => {
               options={options}
               className="h-full w-full"
             />
-            <div className="absolute bottom-4 right-4 bg-green-500 text-white rounded-full p-4 shadow-lg flex items-center justify-center">
-              <span className="text-xl font-bold">
-                Total&nbsp;
-                {new Intl.NumberFormat("fr-FR", {
-                  style: "currency",
-                  currency: "EUR",
-                }).format(totalSales)}
-              </span>
-            </div>
+          </div>
+        </div>
+        <div className="w-1/3 flex flex-col  p-4 justify-between items-center ">
+          <h2 className="text-white text-3xl mb-4">Total</h2>
+          <div className="bg-green-500 text-white rounded-full p-4 shadow-lg flex items-center justify-center">
+            <span className="text-xl font-bold">
+              Total&nbsp;
+              {new Intl.NumberFormat("fr-FR", {
+                style: "currency",
+                currency: "EUR",
+              }).format(totalSales)}
+            </span>
           </div>
         </div>
       </div>
