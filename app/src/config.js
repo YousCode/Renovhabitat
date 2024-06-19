@@ -16,7 +16,7 @@ if (environment === "development") {
 //   appURL = "https://kolab-app.cleverapps.io";
 // }
 if (environment === "production") {
-  apiURL = "https://renovhabitat.vercel.app";
+  apiURL = "renovhabitat-api.vercel.app";
   appURL = "https://renovhabitat.vercel.app";
 }
 
