@@ -12,9 +12,9 @@ const app = express();
 
 // Ajouter votre domaine Vercel ici
 const origin = [
-  'https://kolab-app.cleverapps.io',
+  // 'https://kolab-app.cleverapps.io',
   'http://localhost:8082',
-  'https://kolab-admin.cleverapps.io',
+  // 'https://kolab-admin.cleverapps.io',
   'http://localhost:8083',
   'https://renovhabitat.vercel.app' 
 ];
