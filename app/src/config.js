@@ -11,9 +11,13 @@ if (environment === "development") {
   appURL = "http://localhost:8082";
 }
 
+// if (environment === "production") {
+//   apiURL = "https://kolab-api.cleverapps.io";
+//   appURL = "https://kolab-app.cleverapps.io";
+// }
 if (environment === "production") {
-  apiURL = "https://kolab-api.cleverapps.io";
-  appURL = "https://kolab-app.cleverapps.io";
+  apiURL = "https://renovhabitat.vercel.app";
+  appURL = "https://renovhabitat.vercel.app";
 }
 
 const SENTRY_URL = "https://1b10c07b6dbfca8fa04ac9cbab4aab83@sentry.selego.co/81";
