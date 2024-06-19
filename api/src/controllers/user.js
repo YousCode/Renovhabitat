@@ -32,16 +32,16 @@ router.post("/signin", async (req, res) => {
   let { password, email } = req.body;
   email = (email || "").trim().toLowerCase();
 
-  if (!email || !password) return res.status(400).send({ ok: false, code: EMAIL_AND_PASSWORD_REQUIRED });
+  if (!email || !password) return res.status(400).send({ ok: false, code: "EMAIL_AND_PASSWORD_REQUIRED" });
 
   try {
     const user = await UserObject.findOne({ email });
-    if (!user) return res.status(401).send({ ok: false, code: USER_NOT_EXISTS });
+    if (!user) return res.status(401).send({ ok: false, code: "USER_NOT_EXISTS" });
 
-    if (user.status !== "ACCEPTED") return res.status(401).send({ ok: false, code: ACCOUNT_NOT_APPROVED });
+    if (user.status !== "ACCEPTED") return res.status(401).send({ ok: false, code: "ACCOUNT_NOT_APPROVED" });
 
     const match = await user.comparePassword(password);
-    if (!match) return res.status(401).send({ ok: false, code: EMAIL_OR_PASSWORD_INVALID });
+    if (!match) return res.status(401).send({ ok: false, code: "EMAIL_OR_PASSWORD_INVALID" });
 
     user.set({ last_login_at: Date.now() });
     await user.save();
@@ -58,8 +58,8 @@ router.post("/signin", async (req, res) => {
 
     return res.status(200).send({ ok: true, token, user });
   } catch (error) {
-    capture(error);
-    return res.status(500).send({ ok: false, code: SERVER_ERROR });
+    console.error("Erreur lors de la connexion:", error);
+    return res.status(500).send({ ok: false, code: "SERVER_ERROR" });
   }
 });
 
