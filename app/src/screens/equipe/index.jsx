@@ -3,8 +3,7 @@ import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 
-import { LinkIcon, ClipboardIcon } from "src/components/icons";
-import { PlusIcon } from "src/components/icons";
+import { LinkIcon, ClipboardIcon, PlusIcon } from "src/components/icons";
 import Loader from "src/components/loader";
 import { Modal } from "src/components/modal";
 
@@ -106,9 +105,8 @@ export const Equipe = () => {
 
 const InviteMemberModal = ({ isOpen, closeModal }) => {
   const { t } = useTranslation();
+  const url = `${appURL}/signup`;
 
-  const user = useSelector((state) => state.Auth.user);
-  const url = `${appURL}/auth/signup/${user.workspace_id}`;
   return (
     <Modal isOpen={isOpen} closeModal={closeModal}>
       <div className="space-y-4">
