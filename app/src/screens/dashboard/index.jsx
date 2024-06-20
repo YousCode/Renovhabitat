@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
+import { Link, useLocation } from "react-router-dom";
+import { hotjar } from "react-hotjar";
 
 import { CreateSheet } from "../../components/createSheet";
 import { Select } from "./select";
@@ -11,8 +13,6 @@ import { WeeklyCalendar } from "./weeklyCalendar";
 import { KanbanCard } from "./kanbanCard";
 
 import API from "src/services/api";
-import { Link, useLocation } from "react-router-dom";
-import { hotjar } from "react-hotjar";
 
 export const Dashboard = () => {
   const { t } = useTranslation();
@@ -28,10 +28,9 @@ export const Dashboard = () => {
   const [statusFilterCalendar, setStatusFilterCalendar] = useState(
     t("task.todo")
   );
-  const [assignedToFilterCalendar, setAssignedToFilterCalendar] = useState({
-    name: user.name,
-    value: user._id,
-  });
+  const [assignedToFilterCalendar, setAssignedToFilterCalendar] = useState(
+    user ? { name: user.name, value: user._id } : { name: "", value: "" }
+  );
   const [projectFilterCalendar, setProjectFilterCalendar] = useState({
     name: t("dashboard.all_projects"),
     value: "all",
@@ -97,6 +96,7 @@ export const Dashboard = () => {
     if (!ok) return;
     setPeople(data);
   }
+  
   async function getProjects() {
     const { data, ok } = await API.get("/project");
     if (!ok) return;
@@ -129,7 +129,6 @@ export const Dashboard = () => {
   return (
     <>
       <section className="space-y-6 flex flex-col flex-1">
-        
         <WeeklyCalendar
           setTaskSelected={setTaskSelected}
           setModalOpened={setModalOpened}
