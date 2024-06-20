@@ -16,16 +16,15 @@ import { setUser } from "./redux/auth/actions";
 import { hjid, hjsv } from "./config";
 import { ProjectPublic } from "./screens/projects/public";
 
-
 import DateDetails from "./components/DateDetails";
 // import SaleDetails from "./components/SaleDetails";
-
 
 import { environment, SENTRY_URL } from "./config";
 import EditSale from "./components/EditSale";
 import SeachClient from "./screens/ventes/SearchClients";
 import AllSales from "./screens/ventes/AllSales";
 import StatisticsDashboard from "./screens/statistiques/StatisticsDashboard";
+
 if (environment === "production" && SENTRY_URL) Sentry.init({ dsn: SENTRY_URL, environment: "app" });
 
 hotjar.initialize(hjid, hjsv);
@@ -59,27 +58,20 @@ export default function App() {
         <Route path="/connect" component={Connect} />
         <Route path="/public/project" component={ProjectPublic} />
         <Route path="/projects/:date" component={DateDetails} />
-        <Route path="/sales/edit/:saleId" component={EditSale}/>
-        <Route path="/ventes" component={SeachClient}/>
-        <Route path="/all-sales" component={AllSales}/>
-        <Route path="/statistiques" component={StatisticsDashboard}/>
-        
+        <Route path="/sales/edit/:saleId" component={EditSale} />
+        <Route path="/ventes" component={SeachClient} />
+        <Route path="/all-sales" component={AllSales} />
+        <Route path="/statistiques" component={StatisticsDashboard} />
+
         <Layout>
-          <RestrictedRoute path="/account" component={Account} />
-          {/* <RestrictedRoute path="/projects" component={Projects} /> */}
-          <RestrictedRoute path="/equipe" component={Equipe} />
-          <RestrictedRoute path="/explorer" component={Explorer} />
-          <RestrictedRoute path="/" component={Dashboard} exact />
+          <Route path="/account" component={Account} />
+          {/* <Route path="/projects" component={Projects} /> */}
+          <Route path="/equipe" component={Equipe} />
+          <Route path="/explorer" component={Explorer} />
+          <Route path="/" component={Dashboard} exact />
         </Layout>
       </Switch>
       <ResponsiveIndicator />
     </Router>
   );
 }
-
-const RestrictedRoute = ({ component: Component, role, ...rest }) => {
-  const user = useSelector((state) => state.Auth.user);
-
-  if (!user) return <Redirect to={{ pathname: "/auth" }} />;
-  return <Route {...rest} render={(props) => (user ? <Component {...props} /> : <Redirect to={{ pathname: "/auth" }} />)} />;
-};
