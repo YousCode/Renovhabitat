@@ -6,7 +6,7 @@ const environment = getEnvironment();
 
 let MONGO_URL;
 if (environment === "production") {
-  MONGO_URL = process.env.MONGO_URL_PROD || "mongodb+srv://martyrabord:a6OUq9xZdqid2ys9@bddrenovhabita.ydveh7j.mongodb.net/Renovhabitat?retryWrites=true&w=majority&appName=bddRenovhabita";
+  MONGO_URL = process.env.MONGO_URL_PROD || "mongodb+srv://yous26:o3YCiReZj2ROWUTG@neorenov.mt77wei.mongodb.net/Renovhabitat";
 } else {
   MONGO_URL = process.env.MONGO_URL_DEV || "mongodb://127.0.0.1:27017/Renovhanbitat";
 }
